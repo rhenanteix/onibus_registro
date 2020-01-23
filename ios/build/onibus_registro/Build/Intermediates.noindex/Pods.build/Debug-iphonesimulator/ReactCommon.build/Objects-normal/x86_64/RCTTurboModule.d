@@ -1,0 +1,43 @@
+dependencies: \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/node_modules/react-native/ReactCommon/turbomodule/core/platform/ios/RCTTurboModule.mm \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Target\ Support\ Files/ReactCommon/ReactCommon-prefix.pch \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/node_modules/react-native/ReactCommon/turbomodule/core/platform/ios/RCTTurboModule.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTBridge.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTBridgeDelegate.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTJavaScriptLoader.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTDefines.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTBridgeModule.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTFrameUpdate.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTInvalidating.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTModuleMethod.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTBridgeMethod.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTNullability.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/node_modules/react-native/ReactCommon/jscallinvoker/ReactCommon/JSCallInvoker.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/node_modules/react-native/ReactCommon/turbomodule/core/TurboModule.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-jsi/jsi/jsi.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-jsi/jsi/jsi-inl.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-cxxreact/cxxreact/MessageQueueThread.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTConvert.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTAnimationType.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTBorderStyle.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTLog.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTAssert.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTUtils.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTPointerEvents.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTTextDecorationLineType.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/Yoga/yoga/Yoga.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/Yoga/yoga/YGEnums.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/Yoga/yoga/YGMacros.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/Yoga/yoga/YGValue.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTCxxConvert.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Headers/Public/React-Core/React/RCTManagedPointer.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/node_modules/react-native/ReactCommon/turbomodule/core/LongLivedObject.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/node_modules/react-native/ReactCommon/turbomodule/core/TurboModuleUtils.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Folly/folly/Optional.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Folly/folly/Portability.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Folly/folly/portability/Config.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Folly/folly/CPortability.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Folly/folly/Traits.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Folly/folly/Utility.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Folly/folly/lang/Exception.h \
+  /Users/rhenandev/OpenSourceProjects/onibus_registro/ios/Pods/Folly/folly/CppAttributes.h
