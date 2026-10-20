@@ -124,3 +124,24 @@ explicam o escopo real do serviço; não garantem indexação nem citação por 
 Verificação manual recomendada: busca sem resultados, favoritos, seleção de linha,
 inversão do sentido, escolha do dia, abertura do mapa, localização permitida/negada,
 navegação por teclado e zoom. A grade de horários continua disponível em texto.
+
+### Localização e lembrete de saída
+
+A ação destacada de localização sugere uma linha pela referência geográfica mais
+próxima (até 2 km, com precisão do aparelho de até 1 km). A sugestão acontece uma
+vez por ativação; uma escolha manual não é substituída a cada atualização do GPS.
+Distância em linha reta não comprova embarque, direção desejada ou caminho a pé.
+A posição não é enviada ao servidor nem persistida pelo recurso de sugestões.
+
+O lembrete é ativado separadamente por clique, para a próxima saída publicada de
+hoje. Solicita permissão de notificação e usa o service worker quando autorizado;
+caso contrário, exibe o aviso na página. O lembrete fica em `sessionStorage` nessa
+aba, pode ser cancelado e é consumido uma vez na janela de 10 minutos antes da
+saída. Horários já passados não disparam ao retornar à página. O horário é o da
+origem, não uma previsão de chegada ao ponto.
+
+**Limite atual:** o agendamento depende da página aberta e ativa. Não há serviço
+Web Push nem agendador no servidor; celular bloqueado, aba suspensa e site fechado
+não têm entrega garantida. Para esse cenário é necessário integrar persistência
+de inscrições Push, chaves VAPID e envio agendado no servidor. A permissão do
+navegador, por si só, não fornece agendamento em segundo plano.

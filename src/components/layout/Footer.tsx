@@ -10,6 +10,7 @@ export function Footer() {
           coletados em 20/10/2026.
         </p>
         <nav className="footer-links" aria-label="Rodapé">
+          <Link href="/como-usar">Como usar</Link>
           <Link href="/projeto">Sobre o projeto</Link>
           <Link href="/docs">Documentação</Link>
           <Link href="/roadmap">Roadmap</Link>

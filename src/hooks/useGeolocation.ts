@@ -42,6 +42,7 @@ export function useGeolocation() {
           setStatus("Sua localização está ativa");
         },
         (e) => {
+          setPosition(null);
           setStatus(
             e.code === 1
               ? "Permissão negada. Libere a localização nas configurações do navegador."

@@ -36,19 +36,16 @@ self.addEventListener("fetch", (event) => {
           return response;
         })
         .catch(() =>
-          caches
-            .match(req)
-            .then(
-              (r) =>
-                r ||
-                Response.json(
-                  {
-                    error:
-                      "Sem base offline. Abra o portal conectado primeiro.",
-                  },
-                  { status: 503 },
-                ),
-            ),
+          caches.match(req).then(
+            (r) =>
+              r ||
+              Response.json(
+                {
+                  error: "Sem base offline. Abra o portal conectado primeiro.",
+                },
+                { status: 503 },
+              ),
+          ),
         ),
     );
     return;
@@ -60,4 +57,19 @@ self.addEventListener("fetch", (event) => {
   if (SHELL.includes(url.pathname)) {
     event.respondWith(caches.match(req).then((r) => r || fetch(req)));
   }
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then(async (windows) => {
+        const existing = windows.find(
+          (client) => new URL(client.url).origin === self.location.origin,
+        );
+        if (existing) return existing.focus();
+        return self.clients.openWindow("/");
+      }),
+  );
 });

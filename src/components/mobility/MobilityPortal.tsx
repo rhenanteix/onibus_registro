@@ -1,7 +1,9 @@
 "use client";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Bell,
   Search,
   LocateFixed,
   ArrowLeft,
@@ -26,6 +28,8 @@ import {
 import { gradeForLine } from "@/lib/feriados";
 import { locationStatusLabels } from "@/lib/references";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { nearbyReferences, departureInstant } from "@/lib/travel-assistance";
+import { useDepartureReminder } from "@/hooks/useDepartureReminder";
 import { useFavorites } from "@/hooks/useFavorites";
 import { LineCard } from "./LineCard";
 import { Timetable } from "./Timetable";
@@ -58,6 +62,55 @@ export function MobilityPortal({
   const [detail, setDetail] = useState(false);
   const [sync, setSync] = useState("");
   const geo = useGeolocation();
+  const reminder = useDepartureReminder();
+  const locatePending = useRef(false);
+  const [nearbyMessage, setNearbyMessage] = useState("");
+  const nearby = useMemo(
+    () => (geo.position ? nearbyReferences(catalog, geo.position) : []),
+    [catalog, geo.position],
+  );
+  useEffect(() => {
+    if (!geo.position || !locatePending.current) return;
+    if (geo.position.accuracy > 1000) {
+      setNearbyMessage(
+        "Precisão baixa. Aguarde uma localização melhor ou busque sua linha.",
+      );
+      return;
+    }
+    locatePending.current = false;
+    setRecenter((value) => value + 1);
+    const closest = nearby[0];
+    if (closest) {
+      setLineId(closest.lineId);
+      setDirection(closest.journey.direction);
+      setJourneyId(closest.journey.id);
+      setDayOverride(null);
+      setSelected(closest.point);
+      setDetail(true);
+      setQuery("");
+      setFilter("Todas");
+      setNearbyMessage(
+        `Linha ${closest.lineId} sugerida perto de ${closest.point.label}. Confira o sentido antes de viajar.`,
+      );
+    } else {
+      setNearbyMessage(
+        geo.position.accuracy > 1000
+          ? "Precisão baixa. Aguarde uma localização melhor ou busque sua linha."
+          : "Não encontramos referências cadastradas a até 2 km. Busque uma linha pelo nome.",
+      );
+    }
+  }, [geo.position, nearby]);
+  function toggleLocation() {
+    if (geo.active) {
+      geo.stop();
+      locatePending.current = false;
+      setNearbyMessage("");
+    } else {
+      locatePending.current = true;
+      setNearbyMessage("");
+      geo.start();
+    }
+  }
   const { favorites, toggle } = useFavorites();
 
   const [today, setToday] = useState(initialDate);
@@ -99,6 +152,7 @@ export function MobilityPortal({
     [catalog, query, filter, favorites],
   );
   function choose(id: string) {
+    locatePending.current = false;
     setDayOverride(null);
     setLineId(id);
     setDirection(0);
@@ -144,9 +198,110 @@ export function MobilityPortal({
           <h1>Encontre seu ônibus</h1>
         </div>
         <p>Linhas, horários de saída e percursos em um só lugar.</p>
-        <a className="intro-help" href="#como-usar">
+        <Link className="intro-help" href="/como-usar">
           <Info size={17} /> Como usar
-        </a>
+        </Link>
+        <div className="location-assist">
+          <div className="location-actions">
+            <button
+              className="location-entry"
+              disabled={geo.active && !geo.position}
+              onClick={() => {
+                if (geo.position) {
+                  setRecenter((value) => value + 1);
+                  openMap();
+                } else toggleLocation();
+              }}
+            >
+              <LocateFixed size={21} />
+              {geo.position
+                ? "Ver onde estou"
+                : geo.active
+                  ? "Buscando localização…"
+                  : "Encontrar ônibus perto de mim"}
+            </button>
+            {geo.active && (
+              <button className="location-center" onClick={toggleLocation}>
+                <X size={18} /> Desligar localização
+              </button>
+            )}
+          </div>
+          <div className="location-copy">
+            <p className="geo-status" role="status">
+              {geo.status}
+              {geo.position
+                ? ` · precisão de ${Math.round(geo.position.accuracy)} m`
+                : " · permita o acesso para ver linhas próximas"}
+            </p>
+            {nearbyMessage && (
+              <p className="nearby-message" role="status">
+                {nearbyMessage}
+              </p>
+            )}
+            {geo.position && (
+              <button
+                className="nearby-journey"
+                onClick={() => {
+                  setDetail(true);
+                  setMobileMap(false);
+                  requestAnimationFrame(() => detailHeading.current?.focus());
+                }}
+              >
+                Ver horários e criar lembrete <ArrowRight size={16} />
+              </button>
+            )}
+            {geo.position && nearby.length > 0 && (
+              <div className="nearby-options" aria-label="Linhas próximas">
+                {nearby.slice(0, 3).map((item) => (
+                  <button
+                    key={item.lineId}
+                    aria-pressed={lineId === item.lineId}
+                    onClick={() => {
+                      choose(item.lineId);
+                      setDirection(item.journey.direction);
+                      setJourneyId(item.journey.id);
+                      setSelected(item.point);
+                    }}
+                  >
+                    <strong>{item.lineId}</strong> {Math.round(item.meters)} m
+                    em linha reta
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        {reminder.reminder && (
+          <div className="reminder-status">
+            <Bell size={18} />
+            <span>
+              Lembrete ativo:{" "}
+              <strong>
+                {reminder.reminder.lineId} · {reminder.reminder.time}
+              </strong>
+              . Mantenha a página aberta.
+            </span>
+            <button
+              aria-label="Cancelar lembrete ativo"
+              onClick={reminder.cancel}
+            >
+              Cancelar
+            </button>
+          </div>
+        )}
+        {reminder.alert && (
+          <div className="departure-alert" role="alert">
+            <Bell size={22} />
+            <p>{reminder.alert}</p>
+            <button
+              className="icon-button"
+              aria-label="Fechar aviso de saída"
+              onClick={reminder.dismiss}
+            >
+              <X size={18} />
+            </button>
+          </div>
+        )}
       </section>
       <aside
         aria-label="Buscar linhas de ônibus"
@@ -175,19 +330,6 @@ export function MobilityPortal({
               </button>
             )}
           </label>
-          <button
-            className="location-entry"
-            onClick={() => (geo.active ? geo.stop() : geo.start())}
-          >
-            <LocateFixed size={18} />
-            {geo.active
-              ? "Desligar minha localização"
-              : "Usar minha localização"}
-            <ArrowRight size={16} />
-          </button>
-          <p className="geo-status" role="status">
-            {geo.status}
-          </p>
           <div className="filters" role="group" aria-label="Filtrar linhas">
             {["Todas", "Urbana", "Rural", "Universitária", "Favoritas"].map(
               (f) => (
@@ -357,6 +499,63 @@ export function MobilityPortal({
               </strong>
             </div>
             {next && <span>na origem</span>}
+          </div>
+          <div className="reminder-card">
+            <strong>
+              <Bell size={17} /> Lembrete de saída
+            </strong>
+            <p>
+              Avise 10 minutos antes da saída na origem. Não é o horário de
+              chegada ao seu ponto.
+            </p>
+            {next && isToday && (
+              <button
+                className="primary"
+                disabled={reminder.busy}
+                onClick={() => {
+                  const now = new Date();
+                  const departureAt = departureInstant(next.time, now);
+                  if (!departureAt) return;
+                  void reminder.schedule({
+                    id: `${line.id}-${direction}-${saoPauloDateKey(now)}-${next.time}`,
+                    lineId: line.id,
+                    origin,
+                    destination,
+                    time: next.time,
+                    date: saoPauloDateKey(now),
+                    departureAt,
+                  });
+                }}
+              >
+                <Bell size={17} />
+                {reminder.busy
+                  ? "Solicitando permissão…"
+                  : "Lembrar desta saída"}
+              </button>
+            )}
+            {!next && (
+              <p>Escolha uma saída futura de hoje para ativar o lembrete.</p>
+            )}
+            {reminder.reminder && (
+              <div className="reminder-active">
+                <p>
+                  Lembrete ativo:{" "}
+                  <strong>
+                    {reminder.reminder.lineId} · {reminder.reminder.time}
+                  </strong>
+                  , de {reminder.reminder.origin} para{" "}
+                  {reminder.reminder.destination}.
+                </p>
+                <button onClick={reminder.cancel}>Cancelar lembrete</button>
+              </div>
+            )}
+            <p role="status">{reminder.message}</p>
+            <small>
+              Se faltarem menos de 10 minutos, o aviso aparece em até 15
+              segundos. Mantenha esta página aberta e ativa. Com o site fechado,
+              o celular bloqueado ou o navegador suspenso, este lembrete não é
+              garantido.
+            </small>
           </div>
           <p className="notice">
             <Info size={16} /> Percurso em validação. Confirme o embarque com a

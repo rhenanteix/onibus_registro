@@ -1,11 +1,12 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   MapContainer,
   TileLayer,
   Polyline,
   Marker,
   Popup,
+  Tooltip,
   Circle,
   useMap,
 } from "react-leaflet";
@@ -42,26 +43,36 @@ function View({
   recenter: number;
 }) {
   const map = useMap();
+  const currentPosition = useRef(position);
   useEffect(() => {
+    currentPosition.current = position;
+  }, [position]);
+  const lastRecenter = useRef(0);
+  useEffect(() => {
+    // One camera update per render: a nearby reference must not override "where I am".
+    map.stop();
+    const location = currentPosition.current;
+    if (location && recenter > lastRecenter.current) {
+      lastRecenter.current = recenter;
+      map.setView([location.lat, location.lon], 16, { animate: false });
+      return;
+    }
+    if (selected?.position) {
+      map.setView([selected.position.lat, selected.position.lon], 17, {
+        animate: false,
+      });
+      return;
+    }
     const points =
       journey?.points
-        .filter((p) => p.position)
-        .map((p) => [p.position!.lat, p.position!.lon] as [number, number]) ??
-      [];
+        .filter((point) => point.position)
+        .map(
+          (point) =>
+            [point.position!.lat, point.position!.lon] as [number, number],
+        ) ?? [];
     if (points.length)
-      map.fitBounds(points, { padding: [45, 45], maxZoom: 15 });
-  }, [journey, map]);
-  useEffect(() => {
-    if (selected?.position)
-      map.flyTo([selected.position.lat, selected.position.lon], 17, {
-        duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-          ? 0
-          : 0.6,
-      });
-  }, [selected, map]);
-  useEffect(() => {
-    if (position && recenter > 0) map.setView([position.lat, position.lon], 16);
-  }, [recenter, map, position]);
+      map.fitBounds(points, { padding: [45, 45], maxZoom: 15, animate: false });
+  }, [journey, selected, recenter, map]);
   useEffect(() => {
     const observer = new ResizeObserver(() => map.invalidateSize());
     observer.observe(map.getContainer());
@@ -152,14 +163,25 @@ export default function TransitMap({
             pathOptions={{ color: "#2170d4", fillOpacity: 0.08, weight: 1 }}
           />
           <Marker
+            zIndexOffset={1000}
+            title="Você está aqui"
+            alt="Sua localização atual"
             position={[position.lat, position.lon]}
             icon={L.divIcon({
               className: "user-marker",
               html: "<span></span>",
-              iconSize: [20, 20],
-              iconAnchor: [10, 10],
+              iconSize: [28, 28],
+              iconAnchor: [14, 14],
             })}
           >
+            <Tooltip
+              permanent
+              direction="top"
+              offset={[0, -18]}
+              className="user-location-label"
+            >
+              Você está aqui
+            </Tooltip>
             <Popup>
               Você está aqui. Precisão aproximada:{" "}
               {Math.round(position.accuracy)} m.
