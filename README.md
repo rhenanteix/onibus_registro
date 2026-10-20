@@ -1,55 +1,88 @@
-# Mobilidade em Registro
+# Mobilidade Registro — Next.js / React
 
-Portal estático com PWA, consulta de horários, percurso de referência e localização do usuário.
+Portal independente de transporte de Registro (SP). Reestruturação completa da versão estática: componentes React, TypeScript, Next.js App Router e backend Node.js de leitura. Nome provisório preservado; “Bora Ribeira” não foi adotado sem escolha do mantenedor.
 
-## Stack atual
-- Frontend: HTML, CSS responsivo e JavaScript nativo. Sem React ou Next.js.
-- Mapas: Leaflet 1.9.4 hospedado localmente, mapa base OpenStreetMap.
-- Dados: JSON e GeoJSON versionados; favoritos no localStorage.
-- PWA: manifest e service worker (cache de shell, bibliotecas e dados).
-- Backend/API/banco de dados próprios: **não implementados**. Não há servidor Node.js/NestJS em execução atendendo o portal.
-- Python: scripts de importação e preparação offline, não backend.
-- Publicação estática pelo Sites.
+## Executar
 
-## Estrutura
-`dist/index.html`: interface. `dist/style.css`: estilos. `dist/app.js`: navegação, busca, horários, geolocalização e mapa. `dist/lines.json`: cadastro e itinerários; `dist/schedules.json`: saídas, variantes e pendências; `dist/routes.json`: cinco traçados inferidos em dois sentidos; `dist/stops.json`: três locais OSM sem associação de linhas; `dist/validation.json`: inconsistências da fonte; `dist/sw.js` e `dist/manifest.webmanifest`: PWA. `source-itineraries.txt`: material público enviado pelo usuário. `import_itineraries.py`: importa horários. `prepare_references.py`: deriva sequência textual. `update_route_directions.py`: prepara shapes estimados. `geocoding.json`: referências geográficas usadas.
+Requisitos: Node.js 22.18+ e npm. Com o arquivo de lock distribuído:
 
-## Fonte e validação em 20/10/2026
-Material fornecido comparado com https://registro.sp.gov.br/horarios-de-onibus/ . 11 linhas regulares e quatro grupos universitários (8 viagens/códigos) digitalizados. Os 499 registros são saídas publicadas, incluindo duplicidades/grades conflitantes; não correspondem a 499 viagens operacionais confirmadas. A fonte contém interrogações, títulos inconsistentes, horários de variantes diferentes e conflitos (L9 sábado, L4 atualização sem ano, R4 origem/itinerário, L8 códigos). Esses casos são preservados e identificados; não resolvidos por suposição. Saídas marcadas incertas não participam do destaque de próxima saída. Grade R6 somente terça/quarta/sexta. Universitários preservam o código U52 da fonte. L5 domingo atualizado conforme fonte enviada, substituindo informação anterior.
+```bash
+npm ci
+npm run dev
+```
 
-## Percursos
-L3/L4/L5/L7/L9: cinco geometrias **inferidas**, não homologadas, em dois sentidos distintos, entre referências textuais geocodificadas com roteamento OSRM de automóvel. Não são shapes oficiais e podem omitir ruas/variantes; não servem como orientação exata de embarque. L6: geometria única antiga removida porque há variantes Via BR e Via Vila Romão; faltam geometrias próprias. L8/rurais/universitários: ainda sem shape. A sequência textual completa da fonte é preservada independentemente da geometria parcial.
+Abra http://localhost:3000. Produção:
 
-## Locais e imagens
-Três registros conferidos na API pública OpenStreetMap: nodes 6917189485, 5454700591 e 5454700576. Apenas Rodoviária de Registro tem nome na base. São locais mapeados sem validação atual da operadora. **Não representam o cadastro completo de paradas**, nem comprovam atendimento pela linha selecionada. lineIds vazio. Coordenadas e fontes acessíveis. Distância em linha reta calculada no dispositivo. Não há foto local verificada; links externos Google Street View procuram o entorno, sem garantia de imagem, data ou correspondência à parada. Nenhuma imagem gerada é usada como foto de um local real.
+```bash
+npm test
+npm run typecheck
+npm run build
+npm start
+```
 
-## Tempo real e localização
-Apenas localização do usuário, após botão e permissão: watchPosition, precisão, atualização de marcador, recenter, cancelamento e pausa quando oculto. Coordenadas somente em memória; não persistidas ou enviadas a backend próprio. Tiles do provedor podem revelar área visualizada. Não há feed de GPS dos ônibus, posições simuladas, previsão de chegada ou rastreamento em segundo plano garantido. Há indicação separada do estado da posição do usuário e da ausência de GPS da frota. A grade é estática, não sincronizada automaticamente com a fonte.
+Não abra arquivos TSX ou HTML diretamente pelo Finder. O servidor Next.js é necessário inclusive para as APIs.
 
-## Offline e execução
-Servir dist/ em HTTPS (localhost para desenvolvimento), sem build. Shell e dados em cache com network-first; tiles externos e Street View precisam de internet. Instalação depende do navegador.
+## Publicar no GitHub e Vercel
 
-## Testes
-Sintaxe app.js/sw.js; integridade de 15 entradas, horários, variantes, incertezas e dados de locais. Testes DOM/mapa/GPS simulados para busca, favoritos, sentido/dia, L5 domingo, L6 variantes/nota IFSP, L9 conflito, R6 dias específicos, U52, 3 locais, distância, geolocalização e erros. Sem QA em navegador real ou GPS físico neste ambiente.
+1. Extraia este pacote. Crie um repositório e envie seu CONTEÚDO, mantendo as pastas. Não envie apenas o ZIP.
+2. `package.json`, `package-lock.json`, `next.config.ts`, `tsconfig.json` e `vercel.json` devem estar na raiz junto de `src/` e `public/`.
+3. Importe na Vercel usando preset **Next.js**, Root Directory na pasta de `package.json`, Install `npm ci`, Build `npm run build`.
+4. Remova o override antigo de Output Directory `dist`. Deixe o padrão do Next.js (sem override). Este projeto NÃO usa dist e NÃO é exportação estática.
+5. Remova configurações antigas do projeto estático caso esteja substituindo o mesmo repositório. Não misture `app.js` antigo com o novo `src/`.
+6. Não há variáveis de ambiente obrigatórias, banco ou chave privada nesta versão.
 
-## Dependências para produção completa
-Cadastro homologado parada/linha/sentido/sequência, shapes oficiais, fotos com origem/licença verificadas e vigência operacional das grades. Tempo real dos ônibus requer API/GTFS-RT ou integração autorizada com GPS da operadora. Uma futura API Node.js/NestJS e banco geográfico podem centralizar publicação/validação/feeds; não estão implementados nesta versão.
+Se preferir Git local:
 
-## v5 — sequências por destino e referências recuperadas
-Recuperados os marcadores numerados de referência com uma lista vinculada por linha, sentido e variante. journeys.json contém 42 sequências para todos os 15 grupos de destino (11 regulares + 4 universitários). São 404 ocorrências de referências ao longo dessas sequências (com repetições entre sentidos/variantes); 301 ocorrências receberam localização aproximada e 103 permanecem sem coordenada, visíveis na ordem publicada. Esses números NÃO são um inventário de 404 paradas físicas e NÃO significam paradas de embarque homologadas.
-A numeração permanece estável na busca. Referências com a mesma coordenada compartilham um marcador com todos os números. Clicar em Ver no mapa abre a referência correspondente. Listagem global permite abrir cada sequência. Variantes sem shape não usam a geometria do percurso principal nem polilinhas inventadas. Dados incompletos L6/R6/universitários identificados como sequências parciais.
-Georreferenciamento por correspondências nominalmente verificadas com índice OSM local e cache de referências previamente conferido; ruas/bairros são aproximados, não calçada/poste de embarque. IFSP e Faculdade usam referências de campus (não paradas). boardingValidated=false em todas as referências. Três locais OSM permanecem em seção separada, sem associação de linhas.
-Consulta adicional às fontes públicas não localizou o cadastro completo de paradas/linha/sentido. Para concluir a validação operacional são necessários stops e stop_times GTFS, cadastro equivalente da operadora/município ou levantamento em campo autorizado.
-Novos testes simulados: listas e marcadores vinculados, todas as direções, variantes especiais, 42 seletores globais, numeração fixa na busca, sequência parcial e ausência de marcador para coordenada pendente. Sem QA visual em navegador real.
-Reprodução: build_journeys.py usa reference-geocoding-index.json retido no repositório e geocoding.json; não depende do scratch.
+```bash
+git init
+git add .
+git commit -m "Reestrutura portal em Next.js"
+git branch -M main
+git remote add origin https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
+git push -u origin main
+```
 
-## GitHub e Vercel
-Export preparado sem credenciais, arquivos internos de hospedagem ou histórico Git da publicação anterior. Produção estática: os comandos Node validam arquivos e dados; não há backend/API.
+## Stack e backend
 
-- `npm run build`: valida a publicação; saída em dist/.
-- Desenvolvimento local: `python -m http.server 3000 --directory dist` e abrir http://localhost:3000.
-- Vercel: Framework Other; Output Directory dist; Build npm run build; Install sem comando. vercel.json contém a configuração.
-- Branch proposta para produção: main, quando o repositório GitHub estiver conectado.
+- React 19, Next.js 16, TypeScript estrito.
+- Leaflet e React Leaflet, carregados apenas no cliente com importação dinâmica.
+- CSS próprio, responsivo, sem template de landing page.
+- Lucide para ícones de interface; não há logo de operadora.
+- Route Handlers Node.js: `/api/catalog`, `/api/lines/[id]`, `/api/realtime`.
+- Repositório de dados no servidor: `src/server/transit-repository.ts`. Atualmente lê JSON versionado. Não há NestJS separado, banco, autenticação ou endpoint administrativo de gravação.
+- O Server Component da página inicial acessa o repositório diretamente; o botão atualizar consulta a API. O mesmo catálogo alimenta o cache offline.
 
-### Dados de terceiros
-Leaflet mantém seu aviso de copyright no arquivo distribuído (BSD-2-Clause). Dados OpenStreetMap estão sujeitos à ODbL e atribuição; fontes ficam nos registros e no mapa. Horários e itinerários são informações públicas cuja vigência deve ser confirmada. Esta publicação não define licença geral para dados de terceiros.
+## Funcionalidades implementadas
+
+Busca por linha, destino, bairro ou referência; filtros; favoritos no dispositivo; ida/volta; seleção de 42 percursos; horários por dia; próxima saída publicada na origem usando fuso São Paulo; referências numeradas vinculadas ao mapa; traçados aproximados tracejados; localização do usuário e círculo de precisão; botão para recentralizar; pausa da localização quando a aba fica oculta; controle para parar; link externo para entorno; consulta de fonte e texto original; página `/projeto` com melhorias e arquitetura; instalação assistida; consulta offline simplificada da última base salva.
+
+O buscador encontra linhas que mencionam um destino. NÃO calcula planejamento porta a porta, conexões, caminhada, duração ou tarifa. Horário de saída NÃO é previsão de passagem pelo ponto. A seleção de variante não infere uma associação que não existe entre horário e geometria: notas e variantes de cada saída são preservadas.
+
+## Instalação PWA
+
+A instalação automática e silenciosa não é permitida pelos navegadores. O convite é apresentado e o usuário confirma. `beforeinstallprompt` é usado onde disponível. No iPhone, a interface orienta Compartilhar → Adicionar à Tela de Início. Dentro de navegadores de redes sociais pode ser necessário abrir no navegador do dispositivo. HTTPS é necessário em produção; localhost é aceito para desenvolvimento.
+
+Manifest e ícones em `public/`. O service worker é registrado após a hidratação. O usuário pode dispensar o convite por sete dias e reabri-lo pelo botão fixo. O cache da versão anterior do projeto é substituído. Favoritos e preferência de instalação ficam no localStorage; coordenadas não são persistidas nem enviadas à API.
+
+Offline: abre `/offline.html`, com consulta por linha de horários e referências, a partir do último catálogo salvo. A primeira visita deve ser online. Não se promete o mapa ou toda a interface React em modo offline; tiles e imagens externas exigem internet. O cache deve ser invalidado quando o formato dos dados mudar. GPS da frota não existe.
+
+## Integridade e fontes
+
+Base documental de 20/10/2026: material público fornecido e https://registro.sp.gov.br/horarios-de-onibus/ . Foram preservados os arquivos da versão anterior:
+
+- 15 grupos de linhas, 42 sequências e 499 registros de saídas (com duplicidades e incertezas da fonte).
+- 404 ocorrências de referências, com repetições: 301 geolocalizadas aproximadamente e 103 sem coordenada.
+- Esses números não representam inventário de paradas físicas. Todas as referências têm `boardingValidated: false`.
+- Cinco shapes inferidos (L3/L4/L5/L7/L9), em dois sentidos, com roteamento de automóvel entre referências. Não são percursos oficiais de ônibus. Variantes especiais não reutilizam o shape principal.
+- Três locais OSM sem vínculo confirmado com linhas. Não são mostrados como pontos de embarque da linha selecionada.
+- L6 sem geometria porque as variantes não foram validadas. R6 somente terça/quarta/sexta. Feriados são seleção manual.
+- A grade não é sincronizada automaticamente com a fonte. O botão atualizar consulta a API do projeto, não o site da operadora.
+- Link “Ver entorno” procura imagens num serviço externo e não comprova o ponto de embarque nem garante disponibilidade de fotos.
+
+## Organização do código
+
+Veja `docs/ARQUITETURA.md` para o papel de cada componente, contrato das APIs e próximos módulos. `docs/EVOLUCAO.md` detalha a priorização e critérios de aceite. A mesma descrição funcional está disponível na página `/projeto`.
+
+## Licenças
+
+Código original: MIT, em LICENSE. Dados de terceiros não são relicenciados pela licença do código. Consulte THIRD_PARTY.md e as fontes por registro. Não existe vínculo oficial com a operadora nem autorização presumida para acessar GPS ou bilhetagem.

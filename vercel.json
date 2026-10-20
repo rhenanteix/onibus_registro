@@ -1,32 +1,5 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "version": 2,
-  "framework": null,
-  "outputDirectory": "dist",
+  "framework": "nextjs",
   "buildCommand": "npm run build",
-  "installCommand": "",
-  "headers": [
-    {
-      "source": "/sw.js",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
-        }
-      ]
-    },
-    {
-      "source": "/manifest.webmanifest",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/manifest+json"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "no-cache"
-        }
-      ]
-    }
-  ]
+  "installCommand": "npm ci"
 }

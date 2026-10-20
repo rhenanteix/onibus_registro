@@ -1,0 +1,51 @@
+{
+  "source": "https://registro.sp.gov.br/horarios-de-onibus/",
+  "checkedAt": "2026-10-20",
+  "status": "source-compared-not-operationally-validated",
+  "issues": [
+    {
+      "line": "L4",
+      "issue": "A página da Prefeitura anuncia substituição de 14:00 por 15:00 a partir de 13/9, sem ano, mas a grade ainda lista ambos. Saída 14:00 marcada a confirmar."
+    },
+    {
+      "line": "L6",
+      "issue": "As viagens via BR e via Vila Romão têm grades distintas. A saída 22:40 é do IFSP; a viagem 22:20 sai do Agrochá com parada no IFSP. Não tratar as origens como iguais."
+    },
+    {
+      "line": "L7",
+      "issue": "A grade de retorno lista 18:35, mas a variante universitária é descrita às 18:45. Confirmar a viagem universitária."
+    },
+    {
+      "line": "L8",
+      "issue": "A fonte usa L71 dentro da seção L8. Associação mantida pela seção e pelo sentido; confirmar código."
+    },
+    {
+      "line": "L8",
+      "issue": "A fonte usa L72 dentro da seção L8. Associação mantida pela seção e pelo sentido; confirmar código."
+    },
+    {
+      "line": "L9",
+      "issue": "A L9 apresenta duas grades para o retorno no sábado. Ambas foram mantidas como a confirmar; nenhuma foi escolhida automaticamente."
+    },
+    {
+      "line": "L9",
+      "issue": "No domingo a fonte lista as mesmas horas para os dois sentidos; confirmar se a grade é intencional."
+    },
+    {
+      "line": "R4",
+      "issue": "O cabeçalho da R4 cita Votupoca, embora a linha seja Guaviruva / Peropava. Confirmar a origem e o sentido de retorno."
+    },
+    {
+      "line": "R4",
+      "issue": "O cabeçalho da R4 cita Votupoca, embora a linha seja Guaviruva / Peropava. Confirmar a origem e o sentido de retorno."
+    },
+    {
+      "line": "R4",
+      "issue": "O cabeçalho da R4 cita Votupoca, embora a linha seja Guaviruva / Peropava. Confirmar a origem e o sentido de retorno."
+    },
+    {
+      "line": "R4",
+      "issue": "A lista informa retorno 12:40, mas a descrição do itinerário cita 12:30. Há também observação 17:30 dentro da seção de domingo. Confirmar variantes e horários."
+    }
+  ]
+}

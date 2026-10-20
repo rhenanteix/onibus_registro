@@ -1,17 +1,14 @@
-# Como publicar manualmente
+# Publicar a versão Next.js
 
-1. Extraia este ZIP no computador.
-2. Crie um repositório público chamado registro-mobilidade no seu GitHub.
-3. Em Upload files, envie o CONTEÚDO da pasta extraída: dist/, scripts/, README.md, package.json, vercel.json e os demais arquivos. Não envie apenas o ZIP. package.json e vercel.json devem ficar na raiz do repositório.
-4. Preserve as pastas dist/ e scripts/. No macOS, arquivos iniciados por ponto podem estar ocultos; inclua .gitignore caso use Git local.
-5. Confirme o commit na branch main.
-6. Na Vercel, importe esse repositório. Framework: Other. Build Command: npm run build. Output Directory: dist. O vercel.json já fornece a configuração. Não são necessárias variáveis de ambiente.
+1. Extraia o ZIP.
+2. Use um repositório novo ou uma branch de migração. Envie o conteúdo extraído preservando src/, public/, docs/, tests/ e tools/.
+3. package.json, package-lock.json, tsconfig.json, next.config.ts e vercel.json devem ficar na raiz.
+4. Na Vercel escolha Framework Next.js. Root Directory: pasta que contém package.json. Install: npm ci. Build: npm run build. Output Directory: padrão, SEM override dist.
+5. Não precisa de variáveis de ambiente nesta versão.
+6. Faça o deploy e teste no celular com HTTPS. O botão de instalação depende da confirmação e suporte do navegador.
 
-Para testar localmente (Node.js 20+ e Python 3):
+A versão anterior era estática. Esta tem servidor Next.js/Node e APIs; não misture os arquivos antigos de dist com os componentes novos.
 
-    npm run build
-    python3 -m http.server 3000 --directory dist
+Execução local: npm ci, npm run dev, abrir http://localhost:3000.
 
-Abra http://localhost:3000. Use um servidor HTTP, não abra index.html diretamente pelo Finder.
-
-Este pacote contém a implementação atual completa. Frontend HTML/CSS/JavaScript, Leaflet e PWA; Node.js somente para validação. Não existe backend Node/NestJS ou rastreamento GPS da frota nesta versão. A localização do usuário depende de permissão. Percursos e referências aproximadas têm pendências detalhadas no README; não constituem cadastro homologado de todas as paradas.
+Detalhes de UX/backend: página /projeto e pasta docs/. Código original sob MIT; dados de terceiros têm condições próprias em THIRD_PARTY.md.
