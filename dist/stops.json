@@ -1,0 +1,51 @@
+[
+  {
+    "id": "osm-6917189485",
+    "name": "Rodoviária de Registro",
+    "lat": -24.4925796,
+    "lon": -47.8380735,
+    "source": "https://www.openstreetmap.org/node/6917189485",
+    "verifiedAt": "2026-10-20",
+    "status": "mapped-not-operator-validated",
+    "lineIds": [],
+    "photos": [],
+    "kind": "station",
+    "tags": {
+      "amenity": "bus_station",
+      "name": "Rodoviária de Registro",
+      "public_transport": "station"
+    }
+  },
+  {
+    "id": "osm-5454700591",
+    "name": "Local de transporte sem nome no mapa",
+    "lat": -24.4762768,
+    "lon": -47.8283826,
+    "source": "https://www.openstreetmap.org/node/5454700591",
+    "verifiedAt": "2026-10-20",
+    "status": "mapped-not-operator-validated",
+    "lineIds": [],
+    "photos": [],
+    "kind": "station",
+    "tags": {
+      "amenity": "bus_station",
+      "public_transport": "station"
+    }
+  },
+  {
+    "id": "osm-5454700576",
+    "name": "Local de transporte sem nome no mapa",
+    "lat": -24.5295762,
+    "lon": -47.8574699,
+    "source": "https://www.openstreetmap.org/node/5454700576",
+    "verifiedAt": "2026-10-20",
+    "status": "mapped-not-operator-validated",
+    "lineIds": [],
+    "photos": [],
+    "kind": "station",
+    "tags": {
+      "amenity": "bus_station",
+      "public_transport": "station"
+    }
+  }
+]
