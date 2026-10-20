@@ -1,18 +1,47 @@
 import fs from "fs";
 import path from "path";
-import { marked } from "marked";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { renderMarkdown } from "@/lib/markdown";
+
+export const metadata = { title: "Roadmap, versões e melhorias" };
 
 export default function RoadmapPage() {
-  const roadmap = fs.readFileSync(path.join(process.cwd(), "ROADMAP.md"), "utf8");
-  const changelog = fs.readFileSync(path.join(process.cwd(), "CHANGELOG.md"), "utf8");
+  const roadmap = fs.readFileSync(
+    path.join(process.cwd(), "ROADMAP.md"),
+    "utf8",
+  );
+  const changelog = fs.readFileSync(
+    path.join(process.cwd(), "CHANGELOG.md"),
+    "utf8",
+  );
   return (
-    <div className="min-h-screen p-8">
-      <div className="mx-auto max-w-4xl">
-        <h1 className="text-3xl font-bold mb-6">Roadmap, Versões e Melhorias</h1>
-        <div className="prose max-w-none mb-10" dangerouslySetInnerHTML={{ __html: marked.parse(roadmap) as string }} />
-        <hr className="my-10" />
-        <div id="changelog" className="prose max-w-none" dangerouslySetInnerHTML={{ __html: marked.parse(changelog) as string }} />
+    <main id="conteudo" className="project-page">
+      <Link className="back-link" href="/docs">
+        <ArrowLeft size={16} /> Documentação
+      </Link>
+      <div className="project-intro">
+        <span className="eyebrow">ROADMAP · VERSÕES</span>
+        <h1>Roadmap, versões e melhorias</h1>
+        <p>
+          O que já foi entregue, o que continua em aberto e o que depende de
+          informação que o projeto ainda não tem. O conteúdo vem dos arquivos
+          ROADMAP.md e CHANGELOG.md versionados no repositório, na ordem em que
+          estão no código.
+        </p>
       </div>
-    </div>
+      <section>
+        <div
+          className="markdown"
+          dangerouslySetInnerHTML={{ __html: renderMarkdown(roadmap) }}
+        />
+      </section>
+      <section id="changelog">
+        <div
+          className="markdown"
+          dangerouslySetInnerHTML={{ __html: renderMarkdown(changelog) }}
+        />
+      </section>
+    </main>
   );
 }

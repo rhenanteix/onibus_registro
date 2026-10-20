@@ -2,6 +2,8 @@
 
 Portal independente de transporte de Registro (SP). Reestruturação completa da versão estática: componentes React, TypeScript, Next.js App Router e backend Node.js de leitura. Nome provisório preservado; “Bora Ribeira” não foi adotado sem escolha do mantenedor.
 
+Site publicado: https://onibusregistro-yeal.vercel.app/
+
 ## Executar
 
 Requisitos: Node.js 22.18+ e npm. Com o arquivo de lock distribuído:
@@ -48,13 +50,13 @@ git push -u origin main
 - Leaflet e React Leaflet, carregados apenas no cliente com importação dinâmica.
 - CSS próprio, responsivo, sem template de landing page.
 - Lucide para ícones de interface; não há logo de operadora.
-- Route Handlers Node.js: `/api/catalog`, `/api/lines/[id]`, `/api/realtime`.
+- Route Handlers Node.js: `/api/catalog`, `/api/lines/[id]`, `/api/realtime`. A especificação OpenAPI fica em `/api/openapi`.
 - Repositório de dados no servidor: `src/server/transit-repository.ts`. Atualmente lê JSON versionado. Não há NestJS separado, banco, autenticação ou endpoint administrativo de gravação.
 - O Server Component da página inicial acessa o repositório diretamente; o botão atualizar consulta a API. O mesmo catálogo alimenta o cache offline.
 
 ## Funcionalidades implementadas
 
-Busca por linha, destino, bairro ou referência; filtros; favoritos no dispositivo; ida/volta; seleção de 42 percursos; horários por dia; próxima saída publicada na origem usando fuso São Paulo; referências numeradas vinculadas ao mapa; traçados aproximados tracejados; localização do usuário e círculo de precisão; botão para recentralizar; pausa da localização quando a aba fica oculta; controle para parar; link externo para entorno; consulta de fonte e texto original; página `/projeto` com melhorias e arquitetura; instalação assistida; consulta offline simplificada da última base salva.
+Busca por linha, destino, bairro ou referência; filtros; favoritos no dispositivo; ida/volta; seleção de 42 percursos; horários por dia; próxima saída publicada na origem usando fuso São Paulo; referências numeradas vinculadas ao mapa; traçados aproximados tracejados; localização do usuário e círculo de precisão; botão para recentralizar; pausa da localização quando a aba fica oculta; controle para parar; link externo para entorno; consulta de fonte e texto original; páginas `/projeto`, `/docs`, `/docs/api` e `/roadmap`; instalação assistida; consulta offline simplificada da última base salva.
 
 O buscador encontra linhas que mencionam um destino. NÃO calcula planejamento porta a porta, conexões, caminhada, duração ou tarifa. Horário de saída NÃO é previsão de passagem pelo ponto. A seleção de variante não infere uma associação que não existe entre horário e geometria: notas e variantes de cada saída são preservadas.
 
@@ -78,6 +80,17 @@ Base documental de 20/10/2026: material público fornecido e https://registro.sp
 - L6 sem geometria porque as variantes não foram validadas. R6 somente terça/quarta/sexta. Feriados são seleção manual.
 - A grade não é sincronizada automaticamente com a fonte. O botão atualizar consulta a API do projeto, não o site da operadora.
 - Link “Ver entorno” procura imagens num serviço externo e não comprova o ponto de embarque nem garante disponibilidade de fotos.
+
+## Testes
+
+`npm test` executa todos os arquivos `tests/*.test.ts` com o runner nativo do Node (`node --test`), sem dependência externa. A cobertura atual:
+
+- `tests/domain.test.ts`: regras de horário, próxima saída, busca e integridade dos dados versionados.
+- `tests/markdown.test.ts`: renderização dos arquivos markdown usados em `/roadmap` (hierarquia de títulos, HTML bruto descartado, endereços filtrados).
+- `tests/styles.test.ts`: toda classe usada no JSX precisa existir em `src/app/globals.css` e toda rota precisa de destino para o link de salto do cabeçalho.
+- `tests/openapi.test.ts`: a especificação OpenAPI aponta para o site publicado, não promete dado de frota em tempo real e usa IDs de linha que existem na base.
+
+O projeto não usa Tailwind nem outra biblioteca de classes utilitárias: o estilo vem de `src/app/globals.css`, e o teste de estilo falha se uma classe nova for usada sem a regra correspondente.
 
 ## Organização do código
 

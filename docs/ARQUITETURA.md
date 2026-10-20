@@ -15,9 +15,15 @@
 | `src/hooks/useGeolocation.ts` | Permissão explícita, watchPosition, erros, pausa por visibilidade e limpeza |
 | `src/hooks/useFavorites.ts` | Favoritos locais com chave versionada e recuperação de storage inválido |
 | `src/lib/domain.ts` | Normalização de busca, calendário SP, próxima saída e distância geográfica |
+| `src/lib/markdown.ts` | Markdown das páginas públicas: títulos rebaixados um nível, HTML bruto descartado, endereços externos filtrados |
 | `src/types/transit.ts` | Contratos TypeScript de dados e interface |
 | `src/server/transit-repository.ts` | Fronteira servidor/dados; ponto de substituição por Postgres/GTFS |
+| `src/server/openapi-spec.ts` | Especificação OpenAPI da API de leitura, com versão, servidores e exemplos conferidos por teste |
 | `src/app/projeto/page.tsx` | Descrição pública de UX, arquitetura, implementações e roadmap |
+| `src/app/docs/page.tsx` | Índice da documentação: API, roadmap e projeto |
+| `src/app/docs/api/page.tsx` | Referência OpenAPI renderizada por Redoc, com retorno ao índice e aviso quando o CDN externo falha |
+| `src/app/roadmap/page.tsx` | Roadmap e changelog lidos de ROADMAP.md e CHANGELOG.md versionados |
+| `tests/` | Testes do runner nativo do Node: domínio e integridade, markdown e estilo |
 | `public/sw.js` | Cache offline apenas da página simplificada, scripts, ícones e catálogo |
 | `public/offline.html`, `public/offline.js` | Consulta offline sem dependência do bundle Next |
 | `tools/import/` | Importadores Python de manutenção, fora do backend |
@@ -29,6 +35,8 @@
 `GET /api/lines/L3`: `{data: {line, journeys, schedules, route}}`. Linha inexistente retorna HTTP 404 e `{error}`. ID é normalizado para maiúsculas.
 
 `GET /api/realtime`: `{available: false, vehicles: [], reason}`. Resposta sem cache; não existem posições simuladas ou chamada a fornecedor sem autorização.
+
+`GET /api/openapi` (e o atalho `GET /api/docs`): especificação OpenAPI 3.0.3 gerada em `src/server/openapi-spec.ts`. O servidor de produção declarado é o site publicado, a versão acompanha a do `package.json` e os exemplos de ID de linha existem na base versionada; um teste impede que a especificação volte a prometer dado de frota em tempo real.
 
 Todas as rotas são de leitura pública e não recebem coordenadas, nomes ou cartões dos passageiros. Não há endpoints de escrita sem autenticação.
 
