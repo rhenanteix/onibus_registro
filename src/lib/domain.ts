@@ -44,6 +44,43 @@ export function dayForLine(keys: string[], date = new Date()): DayKey {
     ? "tuewedfri"
     : c.day;
 }
+const TIME_TOKEN = /(?<!\d)(\d{1,2})\s*(?:[hH]\s*:?|:\s*[hH]?)\s*(\d{2})(?!\d)/;
+
+export interface ParsedTime {
+  raw: string;
+  time: string;
+  note: string;
+  variant: string;
+  uncertain: boolean;
+}
+
+// Centraliza o parsing de horários da fonte pública. A fonte mistura "06h55",
+// "20:10", "11h:55", "07h50?", "07h55 (extra)", "07h30(Direto)" etc. O texto
+// original fica em raw e as marcações (?, extra, direto, via ...) se separam
+// em note/uncertain; o horário normalizado fica em time (HH:MM).
+export function parseSourceTime(raw: string): ParsedTime | null {
+  const match = raw.match(TIME_TOKEN);
+  if (!match) return null;
+  const hour = Number(match[1]);
+  const minute = Number(match[2]);
+  if (hour > 23 || minute > 59) {
+    throw new Error(`Horário fora do alcance: ${raw}`);
+  }
+  const time = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+  const index = match.index ?? 0;
+  const pre = raw.slice(0, index);
+  let tail = raw.slice(index + match[0].length);
+  // Remove um eventual horário seguinte no mesmo trecho (ex. "07h50?– 08h55"):
+  // o parsing por linha já isola cada token, e aqui um único token vira um
+  // registro, sem perder nem alterar o vizinho.
+  const next = tail.match(TIME_TOKEN);
+  if (next) tail = tail.slice(0, next.index ?? 0);
+  const uncertain = /[?]/.test(tail) || /[-–]\s*\?\s*$/.test(pre);
+  let note = tail.replace(/\?/g, "").replace(/^[\s\u2013-]+|[\s\u2013-]+$/g, "").trim();
+  note = note.replace(/^\(|\)$/g, "").trim();
+  return { raw, time, note, variant: "Padrão", uncertain };
+}
+
 export function nextDeparture(rows: Departure[], minutes: number) {
   return (
     rows

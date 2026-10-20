@@ -43,9 +43,6 @@ export function MobilityPortal({
   const [lineId, setLineId] = useState("L3");
   const [direction, setDirection] = useState(0);
   const [journeyId, setJourneyId] = useState("");
-  const [day, setDay] = useState<DayKey>("week");
-  const [clock, setClock] = useState<number | null>(null);
-  const [selected, setSelected] = useState<ReferencePoint | null>(null);
   const [recenter, setRecenter] = useState(0);
   const [showStops, setShowStops] = useState(false);
   const [mobileMap, setMobileMap] = useState(false);
@@ -53,6 +50,17 @@ export function MobilityPortal({
   const [sync, setSync] = useState("");
   const geo = useGeolocation();
   const { favorites, toggle } = useFavorites();
+
+  // O relógio de referência é sempre America/Sao_Paulo, independentemente do
+  // fuso da máquina. Inicializa no primeiro render (inclusive no servidor) para
+  // que o HTML enviado já traga a próxima saída em vez de "Consulte a grade",
+  // e o cliente só ajusta os segundos a cada 30 segundos.
+  const initialLine =
+    initialCatalog.lines.find((l) => l.id === lineId) ?? initialCatalog.lines[0];
+  const spClock = saoPauloClock();
+  const [day, setDay] = useState<DayKey>(dayForLine(initialLine.dayKeys));
+  const [clock, setClock] = useState<number | null>(spClock.minutes);
+  const [selected, setSelected] = useState<ReferencePoint | null>(null);
   const line = catalog.lines.find((l) => l.id === lineId) ?? catalog.lines[0];
   useEffect(() => {
     const tick = () => setClock(saoPauloClock().minutes);

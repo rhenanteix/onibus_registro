@@ -42,6 +42,7 @@ export interface Departure {
   variant: string;
   uncertain: boolean;
   sourceStatus: string;
+  raw?: string;
 }
 export type Schedules = Record<string, Partial<Record<DayKey, Departure[][]>>>;
 export interface RouteShape {

@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+- Corrigido "Consulte a grade" na primeira consulta da L3 (útil): o portal inicializava o relógio sem horário (cliente) e sem hora local (servidor), então `next` ficava null até o efeito de 30 segundos. O relógio de referência agora inicializa em America/Sao_Paulo no primeiro render, inclusive no servidor; após a última publicação do dia não há próxima saída e continuar mostrando a grade está correto (testes em tests/time.test.ts).
+- Adicionado parseSourceTime em src/lib/domain.ts, função única de parsing de horários da fonte (06h55, 20:10, 11h:55, 07h50?, 07h55 (extra), 07h30 (Direto) ...). O texto original fica em raw e as marcações (?, extra, direto, via ...) se separam em note/uncertain; horário normalizado em time (HH:MM). Testes unitários cobrem todos os formatos reais encontrados nos dados.
+- Adicionado campo opcional raw em Departure.
 - Adicionado página de documentação da API
 - Adicionado página de roadmap e melhorias
 - Adicionado páginas /docs e /roadmap
