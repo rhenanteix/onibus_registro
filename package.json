@@ -8,7 +8,9 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
-    "format": "prettier --write src tests public/*.js *.ts *.json"
+    "report:referencias": "node --experimental-strip-types tools/reports/referencias.ts",
+    "report:referencias:check": "node --experimental-strip-types tools/reports/referencias.ts --check",
+    "format": "prettier --write src tests tools public/*.js *.ts *.json"
   },
   "dependencies": {
     "leaflet": "1.9.4",

@@ -1,5 +1,6 @@
-import { Clock3 } from "lucide-react";
-import type { DayKey, Departure } from "@/types/transit";
+import { Clock3, Info, RotateCcw } from "lucide-react";
+import type { DayKey, Departure, Holiday } from "@/types/transit";
+import { scopeLabels } from "@/lib/feriados";
 export const dayLabels: Record<DayKey, string> = {
   week: "Segunda a sexta",
   sat: "Sábado",
@@ -12,13 +13,23 @@ export function Timetable({
   day,
   onDay,
   days,
+  autoDay,
+  holiday,
+  holidayGrade,
+  onResetDay,
 }: {
   rows: Departure[];
   next: Departure | null;
   day: DayKey;
   onDay: (d: DayKey) => void;
   days: string[];
+  autoDay: DayKey;
+  holiday: Holiday | null;
+  holidayGrade: boolean;
+  onResetDay: () => void;
 }) {
+  const manual = day !== autoDay;
+  const isFeriado = holiday?.type === "feriado";
   return (
     <section>
       <div className="section-heading">
@@ -40,6 +51,35 @@ export function Timetable({
       <p className="muted">
         Saídas da origem da linha. Não são previsões de passagem neste ponto.
       </p>
+      {holiday && isFeriado && holidayGrade && (
+        <p className="notice notice-holiday" role="status">
+          <Info size={16} /> Hoje é {holiday.name.toLowerCase()} (
+          {scopeLabels[holiday.scope].toLowerCase()}). A grade de
+          domingo/feriado foi selecionada automaticamente.
+        </p>
+      )}
+      {holiday && isFeriado && !holidayGrade && (
+        <p className="notice" role="status">
+          <Info size={16} /> Hoje é {holiday.name.toLowerCase()} (
+          {scopeLabels[holiday.scope].toLowerCase()}). Esta linha não publica
+          grade de domingo/feriado, então a grade do dia foi mantida.
+        </p>
+      )}
+      {holiday && !isFeriado && (
+        <p className="notice" role="status">
+          <Info size={16} /> Hoje é ponto facultativo (
+          {holiday.name.toLowerCase()}). A grade não foi alterada
+          automaticamente: confirme com a operadora.
+        </p>
+      )}
+      {manual && (
+        <p className="muted day-override">
+          Seleção manual: {dayLabels[day].toLowerCase()}.{" "}
+          <button onClick={onResetDay}>
+            <RotateCcw size={12} /> Voltar à grade de hoje
+          </button>
+        </p>
+      )}
       {rows.length ? (
         <div className="times">
           {rows.map((r, i) => (
@@ -62,8 +102,8 @@ export function Timetable({
         </p>
       )}
       <small className="muted">
-        “?” indica informação pendente de confirmação. Feriados devem ser
-        selecionados manualmente.
+        “?” indica informação pendente de confirmação. Feriados são detectados
+        pelo calendário oficial do portal; a seleção manual continua disponível.
       </small>
     </section>
   );

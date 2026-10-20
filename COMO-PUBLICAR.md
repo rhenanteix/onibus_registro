@@ -11,4 +11,6 @@ A versão anterior era estática. Esta tem servidor Next.js/Node e APIs; não mi
 
 Execução local: npm ci, npm run dev, abrir http://localhost:3000.
 
-Detalhes de UX/backend: página /projeto e pasta docs/. Código original sob MIT; dados de terceiros têm condições próprias em THIRD_PARTY.md.
+Antes de publicar, rode npm run report:referencias:check, npm test, npm run typecheck e npm run build. O workflow .github/workflows/ci.yml executa a mesma sequência a cada push e pull request.
+
+Detalhes de UX/backend: página /projeto e pasta docs/. A licença dos dados e a minuta de ofício estão em DATA_LICENSE.md, docs/MINUTA-OFICIO.md e na página /licenca. Código original sob MIT; dados de terceiros têm condições próprias em THIRD_PARTY.md.

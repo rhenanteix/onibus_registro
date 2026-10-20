@@ -24,13 +24,33 @@
     sun: "Domingo e feriado",
     tuewedfri: "Terça, quarta e sexta",
   };
+  function todayKey() {
+    try {
+      return new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Sao_Paulo",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date());
+    } catch {
+      return "";
+    }
+  }
+  const key = todayKey();
+  const holiday = (data.holidays?.holidays || []).find((h) => h.date === key);
+  if (holiday) {
+    status.textContent += ` Hoje é ${holiday.type === "ponto_facultativo" ? "ponto facultativo" : "feriado"}: ${holiday.name}.`;
+  }
   function show() {
     result.replaceChildren();
     const id = select.value;
     for (const [day, directions] of Object.entries(data.schedules[id] || {})) {
       const article = document.createElement("article");
       const h = document.createElement("h2");
-      h.textContent = labels[day] || day;
+      h.textContent =
+        day === "sun" && holiday
+          ? `${labels[day]} — hoje: ${holiday.name}`
+          : labels[day] || day;
       article.append(h);
       directions.forEach((rows, d) => {
         const p = document.createElement("p");

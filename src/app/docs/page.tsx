@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, BookOpen, History, Terminal } from "lucide-react";
+import { ArrowUpRight, BookOpen, History, Terminal, Scale } from "lucide-react";
 
 export const metadata = { title: "Documentação" };
 
@@ -15,6 +15,12 @@ const cards = [
     icon: History,
     title: "Roadmap, versões e melhorias",
     text: "O que já foi entregue, o que está em aberto e o histórico de mudanças do projeto.",
+  },
+  {
+    href: "/licenca",
+    icon: Scale,
+    title: "Licença e atribuição dos dados",
+    text: "Fonte, data de coleta, base legal proposta e minuta de ofício para pedir dados oficiais.",
   },
   {
     href: "/projeto",

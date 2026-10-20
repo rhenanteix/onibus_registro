@@ -9,3 +9,7 @@ npm test executa todos os arquivos tests/*.test.ts com o runner nativo do Node. 
 O markdown público de /roadmap vem de ROADMAP.md e CHANGELOG.md, renderizados por src/lib/markdown.ts. Texto é preservado; HTML bruto e endereços não permitidos são descartados na renderização.
 
 Os dados são mantidos em src/data. Os scripts em tools/import escrevem nessa pasta: execute em branch separada e revise o diff antes de publicar. Arquivos com fonte incerta não devem ter suas pendências removidas por suposição.
+
+O calendário de feriados fica em src/data/feriados.json e é regido por src/lib/feriados.ts. Toda data nova precisa de escopo, tipo, status, base legal e fonte oficial; o procedimento está em docs/FERIADOS.md. O campo locationStatus das referências é conferido por npm run report:referencias:check, que falha se os dados brutos e o status gravado divergirem; atualize o relatório em docs/REFERENCIAS.md junto com os dados. Não preencha locationStatus como confirmada sem revisão operacional documentada.
+
+Os dados de terceiros têm Requirements de licença e atribuição descritos em DATA_LICENSE.md, com a minuta de ofício em docs/MINUTA-OFICIO.md. Qualquer nova fonte, novo serviço externo ou novo arquivo de dados precisa ser registrada nesses documentos e em THIRD_PARTY.md. Mantenha o portal livre de requisições a terceiros sem ação do usuário, exceto os tiles do mapa.

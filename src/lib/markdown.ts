@@ -36,7 +36,11 @@ export function renderMarkdown(source: string): string {
       : renderer.parser.parseInline(tokens);
     if (!SAFE_URL.test(href)) return label;
     const titleAttribute = title ? ` title="${escapeAttribute(title)}"` : "";
-    return `<a href="${escapeAttribute(href)}"${titleAttribute}>${label}</a>`;
+    // Endereço externo abre em outra aba, sem repassar a referência de origem.
+    const external = /^https?:/i.test(href)
+      ? ' target="_blank" rel="noopener noreferrer"'
+      : "";
+    return `<a href="${escapeAttribute(href)}"${titleAttribute}${external}>${label}</a>`;
   };
 
   renderer.image = ({ href, title, text, tokens }: Tokens.Image) => {

@@ -56,7 +56,7 @@ git push -u origin main
 
 ## Funcionalidades implementadas
 
-Busca por linha, destino, bairro ou referência; filtros; favoritos no dispositivo; ida/volta; seleção de 42 percursos; horários por dia; próxima saída publicada na origem usando fuso São Paulo; referências numeradas vinculadas ao mapa; traçados aproximados tracejados; localização do usuário e círculo de precisão; botão para recentralizar; pausa da localização quando a aba fica oculta; controle para parar; link externo para entorno; consulta de fonte e texto original; páginas `/projeto`, `/docs`, `/docs/api` e `/roadmap`; instalação assistida; consulta offline simplificada da última base salva.
+Busca por linha, destino, bairro ou referência; filtros; favoritos no dispositivo; ida/volta; seleção de 42 percursos; horários por dia; próxima saída publicada na origem usando fuso São Paulo; referências numeradas vinculadas ao mapa; situação de localização de cada referência (confirmada, aproximada ou sem localização); traçados aproximados tracejados; localização do usuário e círculo de precisão; botão para recentralizar; pausa da localização quando a aba fica oculta; controle para parar; link externo para entorno, aberto só por ação do usuário; consulta de fonte e texto original; calendário de feriados com aplicação automática da grade de domingo/feriado e seleção manual disponível; páginas `/projeto`, `/docs`, `/docs/api`, `/roadmap` e `/licenca`; instalação assistida; consulta offline simplificada da última base salva.
 
 O buscador encontra linhas que mencionam um destino. NÃO calcula planejamento porta a porta, conexões, caminhada, duração ou tarifa. Horário de saída NÃO é previsão de passagem pelo ponto. A seleção de variante não infere uma associação que não existe entre horário e geometria: notas e variantes de cada saída são preservadas.
 
@@ -73,29 +73,37 @@ Offline: abre `/offline.html`, com consulta por linha de horários e referência
 Base documental de 20/10/2026: material público fornecido e https://registro.sp.gov.br/horarios-de-onibus/ . Foram preservados os arquivos da versão anterior:
 
 - 15 grupos de linhas, 42 sequências e 499 registros de saídas (com duplicidades e incertezas da fonte).
-- 404 ocorrências de referências, com repetições: 301 geolocalizadas aproximadamente e 103 sem coordenada.
+- 404 ocorrências de referências, com repetições: 301 com localização aproximada, 103 sem coordenada e 0 confirmadas. O campo `locationStatus` diz isso em cada referência; o relatório está em `docs/REFERENCIAS.md`.
 - Esses números não representam inventário de paradas físicas. Todas as referências têm `boardingValidated: false`.
 - Cinco shapes inferidos (L3/L4/L5/L7/L9), em dois sentidos, com roteamento de automóvel entre referências. Não são percursos oficiais de ônibus. Variantes especiais não reutilizam o shape principal.
 - Três locais OSM sem vínculo confirmado com linhas. Não são mostrados como pontos de embarque da linha selecionada.
-- L6 sem geometria porque as variantes não foram validadas. R6 somente terça/quarta/sexta. Feriados são seleção manual.
+- L6 sem geometria porque as variantes não foram validadas. R6 somente terça/quarta/sexta.
+- Feriados são detectados pelo calendário de `src/data/feriados.json`, com fonte oficial em cada data, e a grade de domingo/feriado é aplicada sozinha. A seleção manual continua disponível. Detalhes em `docs/FERIADOS.md`.
 - A grade não é sincronizada automaticamente com a fonte. O botão atualizar consulta a API do projeto, não o site da operadora.
-- Link “Ver entorno” procura imagens num serviço externo e não comprova o ponto de embarque nem garante disponibilidade de fotos.
+- Link “Ver entorno” procura imagens num serviço externo (Google Maps) e não comprova o ponto de embarque nem garante disponibilidade de fotos. Ele só é acessado por clique, e o portal não carrega imagem ou script de terceiros sem ação do usuário.
 
 ## Testes
 
 `npm test` executa todos os arquivos `tests/*.test.ts` com o runner nativo do Node (`node --test`), sem dependência externa. A cobertura atual:
 
 - `tests/domain.test.ts`: regras de horário, próxima saída, busca e integridade dos dados versionados.
+- `tests/feriados.test.ts`: schema do calendário de feriados, fonte oficial de cada data e aplicação da grade de domingo/feriado.
+- `tests/referencias.test.ts`: situação de localização de cada referência, coerência do campo e ausência de coordenada inventada.
+- `tests/privacidade.test.ts`: nenhuma requisição a terceiros ao carregar a página, exceto os tiles do mapa.
 - `tests/markdown.test.ts`: renderização dos arquivos markdown usados em `/roadmap` (hierarquia de títulos, HTML bruto descartado, endereços filtrados).
 - `tests/styles.test.ts`: toda classe usada no JSX precisa existir em `src/app/globals.css` e toda rota precisa de destino para o link de salto do cabeçalho.
 - `tests/openapi.test.ts`: a especificação OpenAPI aponta para o site publicado, não promete dado de frota em tempo real e usa IDs de linha que existem na base.
 
 O projeto não usa Tailwind nem outra biblioteca de classes utilitárias: o estilo vem de `src/app/globals.css`, e o teste de estilo falha se uma classe nova for usada sem a regra correspondente.
 
+O relatório das referências é reproduzível: `npm run report:referencias` imprime a contagem por linha e por situação; `npm run report:referencias:check` falha se o campo `locationStatus` divergir dos dados brutos.
+
 ## Organização do código
 
-Veja `docs/ARQUITETURA.md` para o papel de cada componente, contrato das APIs e próximos módulos. `docs/EVOLUCAO.md` detalha a priorização e critérios de aceite. A mesma descrição funcional está disponível na página `/projeto`.
+Veja `docs/ARQUITETURA.md` para o papel de cada componente, contrato das APIs e próximos módulos. `docs/EVOLUCAO.md` detalha a priorização e critérios de aceite. `docs/FERIADOS.md` explica como adicionar ou atualizar feriados, com as fontes usadas. `docs/REFERENCIAS.md` é o relatório gerado das referências sem coordenadas. A mesma descrição funcional está disponível na página `/projeto`.
 
 ## Licenças
 
 Código original: MIT, em LICENSE. Dados de terceiros não são relicenciados pela licença do código. Consulte THIRD_PARTY.md e as fontes por registro. Não existe vínculo oficial com a operadora nem autorização presumida para acessar GPS ou bilhetagem.
+
+A base legal dos dados (fonte, data de coleta, natureza pública, aviso de independência e licença sugerida) está em `DATA_LICENSE.md`, renderizado na página `/licenca`. A minuta de ofício para pedir dados oficiais ou autorização à prefeitura está em `docs/MINUTA-OFICIO.md`. Nenhum desses textos é parecer jurídico: a revisão final cabe aos mantenedores.

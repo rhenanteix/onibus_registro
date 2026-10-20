@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { BusFront, ArrowUpRight } from "lucide-react";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { Footer } from "@/components/layout/Footer";
 import "./globals.css";
 export const metadata: Metadata = {
   title: {
@@ -52,6 +53,7 @@ export default function RootLayout({
         </header>
         {children}
         <InstallPrompt />
+        <Footer />
       </body>
     </html>
   );

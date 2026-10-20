@@ -19,6 +19,7 @@ import type {
   MappedStop,
 } from "@/types/transit";
 import { routeColor } from "@/lib/domain";
+import { locationStatusLabels } from "@/lib/references";
 interface Props {
   journey: Journey | null;
   shape: RouteShape | null;
@@ -133,7 +134,7 @@ export default function TransitMap({
                   {p.sequence}. {p.label}
                 </b>
                 <br />
-                Referência aproximada; embarque não validado.
+                {locationStatusLabels[p.locationStatus]}. Embarque não validado.
               </p>
             ))}
           </Popup>

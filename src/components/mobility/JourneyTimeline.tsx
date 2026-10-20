@@ -1,6 +1,10 @@
 import { MapPin, ArrowUpRight } from "lucide-react";
 import type { Journey, ReferencePoint, UserPosition } from "@/types/transit";
 import { distanceMeters } from "@/lib/domain";
+import {
+  locationStatusLabels,
+  locationStatusShortLabels,
+} from "@/lib/references";
 export function JourneyTimeline({
   journey,
   selected,
@@ -35,10 +39,11 @@ export function JourneyTimeline({
             <span className="sequence">{p.sequence}</span>
             <div>
               <strong>{p.label}</strong>
+              <span className="point-status" data-status={p.locationStatus}>
+                {locationStatusShortLabels[p.locationStatus]}
+              </span>
               <small>
-                {p.position
-                  ? "Localização aproximada"
-                  : "Localização ainda não cadastrada"}
+                {locationStatusLabels[p.locationStatus]}
                 {position && p.position
                   ? ` · ${(distanceMeters(position, p.position) / 1000).toFixed(1)} km de você em linha reta`
                   : ""}
@@ -49,7 +54,8 @@ export function JourneyTimeline({
                   <a
                     href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${p.position.lat},${p.position.lon}`}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
+                    referrerPolicy="no-referrer"
                   >
                     Ver entorno <ArrowUpRight size={13} />
                   </a>
@@ -60,8 +66,10 @@ export function JourneyTimeline({
         ))}
       </ol>
       <p className="muted">
-        O entorno abre um serviço externo; a existência e a data das imagens não
-        são garantidas.
+        Referências sem coordenada ficam na lista e não recebem marcador no
+        mapa. “Ver entorno” abre um serviço externo de imagens (Google Maps) e
+        só é acessado se você clicar no link; o portal não carrega imagem de
+        terceiros.
       </p>
     </section>
   );

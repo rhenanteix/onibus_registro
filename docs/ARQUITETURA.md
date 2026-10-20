@@ -8,30 +8,34 @@
 | `src/app/page.tsx` | Server Component: obtém catálogo diretamente no repositório |
 | `src/components/mobility/MobilityPortal.tsx` | Coordena seleção da linha, destino, sentido, dia, referência e painel mobile |
 | `src/components/mobility/LineCard.tsx` | Seleção acessível de linha e favorito |
-| `src/components/mobility/Timetable.tsx` | Grade, dia da viagem e sinalização de saídas incertas |
-| `src/components/mobility/JourneyTimeline.tsx` | Sequência numerada, referência sem coordenada, distância e vínculo com mapa |
+| `src/components/mobility/Timetable.tsx` | Grade, dia da viagem, sinalização de saídas incertas e aviso de feriado em uso |
+| `src/components/mobility/HolidayCalendar.tsx` | Lista de feriados do ano com a fonte oficial de cada data |
+| `src/components/mobility/JourneyTimeline.tsx` | Sequência numerada, situação de localização, distância e vínculo com mapa |
 | `src/components/map/TransitMap.tsx` | React Leaflet; marcador agrupado por coordenada, shape tracejado, precisão e foco |
+| `src/components/layout/Footer.tsx` | Rodapé do portal com o link para a licença dos dados |
 | `src/components/pwa/InstallPrompt.tsx` | Ciclo da instalação, recusa temporária, instruções por plataforma e cache inicial |
 | `src/hooks/useGeolocation.ts` | Permissão explícita, watchPosition, erros, pausa por visibilidade e limpeza |
 | `src/hooks/useFavorites.ts` | Favoritos locais com chave versionada e recuperação de storage inválido |
-| `src/lib/domain.ts` | Normalização de busca, calendário SP, próxima saída e distância geográfica |
+| `src/lib/domain.ts` | Normalização de busca, calendário SP, data local de São Paulo, próxima saída e distância geográfica |
+| `src/lib/feriados.ts` | Calendário de feriados: validação de schema, consulta por data e escolha da grade do dia |
+| `src/lib/references.ts` | Situação de localização das referências e contagem por linha |
 | `src/lib/markdown.ts` | Markdown das páginas públicas: títulos rebaixados um nível, HTML bruto descartado, endereços externos filtrados |
 | `src/types/transit.ts` | Contratos TypeScript de dados e interface |
 | `src/server/transit-repository.ts` | Fronteira servidor/dados; ponto de substituição por Postgres/GTFS |
 | `src/server/openapi-spec.ts` | Especificação OpenAPI da API de leitura, com versão, servidores e exemplos conferidos por teste |
 | `src/app/projeto/page.tsx` | Descrição pública de UX, arquitetura, implementações e roadmap |
-| `src/app/docs/page.tsx` | Índice da documentação: API, roadmap e projeto |
-| `src/app/docs/api/page.tsx` | Referência OpenAPI renderizada por Redoc, com retorno ao índice e aviso quando o CDN externo falha |
+| `src/app/docs/page.tsx` | Índice da documentação: API, roadmap, licença e projeto |
+| `src/app/docs/api/page.tsx` | Referência OpenAPI renderizada por Redoc, com retorno ao índice, aviso quando o CDN externo falha e carregamento só após o clique |
+| `src/app/licenca/page.tsx` | Licença e atribuição dos dados e minuta de ofício, lidas de DATA_LICENSE.md e docs/MINUTA-OFICIO.md |
 | `src/app/roadmap/page.tsx` | Roadmap e changelog lidos de ROADMAP.md e CHANGELOG.md versionados |
-| `tests/` | Testes do runner nativo do Node: domínio e integridade, markdown e estilo |
+| `tests/` | Testes do runner nativo do Node: domínio e integridade, feriados, referências, privacidade, markdown e estilo |
 | `public/sw.js` | Cache offline apenas da página simplificada, scripts, ícones e catálogo |
 | `public/offline.html`, `public/offline.js` | Consulta offline sem dependência do bundle Next |
 | `tools/import/` | Importadores Python de manutenção, fora do backend |
+| `tools/reports/referencias.ts` | Relatório reproduzível das referências e conferência do campo `locationStatus` |
 
 ## API em Node.js
-
 `GET /api/catalog`: `{data: Catalog, meta: {source, updatedAt, fleetRealtime}}`. O cache HTTP tem 60 segundos e stale-while-revalidate de 300 segundos. A consulta manual usa no-store no cliente; a fonte é a base versionada, não uma coleta em tempo real.
-
 `GET /api/lines/L3`: `{data: {line, journeys, schedules, route}}`. Linha inexistente retorna HTTP 404 e `{error}`. ID é normalizado para maiúsculas.
 
 `GET /api/realtime`: `{available: false, vehicles: [], reason}`. Resposta sem cache; não existem posições simuladas ou chamada a fornecedor sem autorização.

@@ -8,6 +8,7 @@ import {
   MapPin,
   Smartphone,
   ArrowRight,
+  CalendarDays,
 } from "lucide-react";
 export const metadata = { title: "Projeto, melhorias e arquitetura" };
 const delivered = [
@@ -30,6 +31,14 @@ const delivered = [
   [
     "Transparência dos dados",
     "Textos e fontes preservados, horários incertos sinalizados, referências aproximadas e ausência de GPS explícitas.",
+  ],
+  [
+    "Calendário de feriados",
+    "Feriados nacionais, estaduais de São Paulo e municipais de Registro com a fonte oficial de cada data. Em feriado, a grade de domingo/feriado é aplicada sozinha, e a seleção manual continua disponível.",
+  ],
+  [
+    "Situação de cada referência",
+    "Cada referência do percurso informa se a localização está confirmada, aproximada ou ausente. Quem não tem coordenada continua na lista, sem marcador inventado.",
   ],
   [
     "Documentação pública",
@@ -142,8 +151,28 @@ export default function Project() {
         <p>
           Linhas contínuas na interface representam a sequência de leitura;
           traçados no mapa são tracejados e aproximados. Referências sem
-          coordenadas continuam na lista, sem inventar marcadores ou ruas. O
-          serviço externo de imagens do entorno não garante foto do ponto.
+          coordenadas continuam na lista, sem inventar marcadores ou ruas, e
+          cada uma informa a própria situação de localização. O serviço externo
+          de imagens do entorno não garante foto do ponto.
+        </p>
+      </section>
+      <section>
+        <h2>
+          <CalendarDays /> Feriados e grade de domingo
+        </h2>
+        <p>
+          O portal mantinha a seleção de feriado como tarefa manual. Agora a
+          grade é aplicada sozinha: o calendário de feriados tem datas
+          nacionais, estaduais de São Paulo e municipais de Registro, cada uma
+          com a fonte oficial que a sustenta. A interface avisa quando a grade
+          de domingo/feriado está em uso, quando a linha não publica essa grade
+          e quando a escolha foi manual.
+        </p>
+        <p>
+          Datas de calendário anual têm portaria ou decreto publicado; datas que
+          dependem apenas de lei permanente ou do calendário pascal são marcadas
+          como previstas. Feriados municipais não foram inferidos: vieram da Lei
+          Orgânica, das leis municipais e dos decretos da Prefeitura.
         </p>
       </section>
       <section>
@@ -232,7 +261,16 @@ export default function Project() {
           Projeto independente, sem vínculo oficial com a operadora. A posição
           do usuário fica na memória do navegador; favoritos ficam neste
           dispositivo. Não usamos rastreamento de passageiros. O provedor do
-          mapa recebe requisições de tiles da região visualizada.
+          mapa recebe requisições de tiles da região visualizada. É a única
+          requisição a terceiros feita ao carregar a página.
+        </p>
+        <p>
+          O link “Ver entorno” abre um serviço externo de imagens (Google Maps)
+          e só é acessado quando você clica nele: o portal não carrega imagem,
+          script ou rastreamento de terceiros sem ação do usuário. A página de
+          documentação da API usa o visualizador Redoc de um CDN externo, mas só
+          o busca depois do clique em “Carregar referência visual”; a
+          especificação em /api/openapi é do próprio projeto.
         </p>
         <p>
           Para colaborar, use o guia CONTRIBUTING.md do código. A documentação
@@ -240,7 +278,9 @@ export default function Project() {
           <Link href="/docs">/docs</Link>. As sugestões de nome ainda não foram
           adotadas: a interface mantém “Mobilidade Registro”. A licença MIT
           cobre o código original; os dados e bibliotecas de terceiros mantêm
-          suas condições e atribuições.
+          suas condições e atribuições. A base legal proposta para os dados, a
+          atribuição exigida e a minuta de ofício à prefeitura estão em{" "}
+          <Link href="/licenca">/licenca</Link>.
         </p>
       </section>
       <Link href="/" className="primary inline-button">

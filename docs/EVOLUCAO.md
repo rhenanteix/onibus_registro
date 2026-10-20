@@ -1,5 +1,14 @@
 # Plano de evolução
 
+## Entregue nesta versão
+
+- Calendário de feriados com fonte oficial por data e aplicação automática da grade de domingo/feriado, com seleção manual mantida (`src/data/feriados.json`, `src/lib/feriados.ts`).
+- Situação de localização por referência (confirmada, aproximada, sem localização), sem coordenada inventada, com relatório reproduzível (`src/lib/references.ts`, `tools/reports/referencias.ts`).
+- Base legal dos dados, atribuição exigida e minuta de ofício, com a página /licenca (`DATA_LICENSE.md`, `docs/MINUTA-OFICIO.md`).
+- Redução de serviços externos: o portal só busca tiles do mapa ao carregar; link de entorno e visualizador da API exigem clique (`tests/privacidade.test.ts`).
+
+Os itens 1 a 8 abaixo continuam em aberto e não dependem de confirmação do transporte.
+
 1. **Homologar a base**: operadora confirma ID, nome, coordenada, lado da rua e sequências de cada ponto; calendário e vigência de cada viagem; shapes por sentido/variante. Aceite: piloto com ida e volta de uma linha validado em campo e pela operação.
 2. **Planejar viagem**: origem, destino, geocodificação, caminhada e conexão. Aceite: apresentar local real de embarque, horário por serviço e trajeto até o destino com fonte e validade; nenhum cálculo sobre referências aproximadas de bairro.
 3. **Administração**: login e papéis, importação GTFS/planilhas, revisão e publicação, logs e reversão. Aceite: editor altera rascunho sem afetar produção; revisor publica versão auditável.

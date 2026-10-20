@@ -17,16 +17,19 @@ import {
 } from "lucide-react";
 import type { Catalog, DayKey, ReferencePoint } from "@/types/transit";
 import {
-  dayForLine,
   destinationMatches,
   nextDeparture,
   normalize,
   saoPauloClock,
+  saoPauloDateKey,
 } from "@/lib/domain";
+import { gradeForLine } from "@/lib/feriados";
+import { locationStatusLabels } from "@/lib/references";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useFavorites } from "@/hooks/useFavorites";
 import { LineCard } from "./LineCard";
 import { Timetable } from "./Timetable";
+import { HolidayCalendar } from "./HolidayCalendar";
 import { JourneyTimeline } from "./JourneyTimeline";
 const TransitMap = dynamic(() => import("@/components/map/TransitMap"), {
   ssr: false,
@@ -55,18 +58,23 @@ export function MobilityPortal({
   // fuso da máquina. Inicializa no primeiro render (inclusive no servidor) para
   // que o HTML enviado já traga a próxima saída em vez de "Consulte a grade",
   // e o cliente só ajusta os segundos a cada 30 segundos.
-  const initialLine =
-    initialCatalog.lines.find((l) => l.id === lineId) ?? initialCatalog.lines[0];
   const spClock = saoPauloClock();
-  const [day, setDay] = useState<DayKey>(dayForLine(initialLine.dayKeys));
+  const [today, setToday] = useState<string>(saoPauloDateKey());
+  // null = grade automática (dia da semana ou feriado); um valor = escolha manual.
+  const [dayOverride, setDayOverride] = useState<DayKey | null>(null);
   const [clock, setClock] = useState<number | null>(spClock.minutes);
   const [selected, setSelected] = useState<ReferencePoint | null>(null);
   const line = catalog.lines.find((l) => l.id === lineId) ?? catalog.lines[0];
+  const grade = gradeForLine(line.dayKeys, today);
+  const day: DayKey = dayOverride ?? grade.day;
   useEffect(() => {
-    const tick = () => setClock(saoPauloClock().minutes);
+    const tick = () => {
+      setClock(saoPauloClock().minutes);
+      setToday(saoPauloDateKey());
+    };
     tick();
     const id = setInterval(tick, 30000);
-    setDay(dayForLine(line.dayKeys));
+    setDayOverride(null);
     return () => clearInterval(id);
   }, [line.id]);
   const journeys = (catalog.journeys[line.id] ?? []).filter(
@@ -75,8 +83,8 @@ export function MobilityPortal({
   const journey =
     journeys.find((j) => j.id === journeyId) ?? journeys[0] ?? null;
   const rows = catalog.schedules[line.id]?.[day]?.[direction] ?? [];
-  const today = day === dayForLine(line.dayKeys);
-  const next = clock !== null && today ? nextDeparture(rows, clock) : null;
+  const isToday = day === grade.day;
+  const next = clock !== null && isToday ? nextDeparture(rows, clock) : null;
   const visible = useMemo(
     () =>
       catalog.lines.filter(
@@ -272,14 +280,14 @@ export function MobilityPortal({
               <small>
                 {next
                   ? "Próxima saída publicada"
-                  : today
+                  : isToday
                     ? "Saídas de hoje"
                     : "Dia selecionado"}
               </small>
               <strong>
                 {next
                   ? next.time
-                  : today
+                  : isToday
                     ? "Consulte a grade"
                     : "Consulte os horários abaixo"}
               </strong>
@@ -297,8 +305,12 @@ export function MobilityPortal({
             rows={rows}
             next={next}
             day={day}
-            onDay={setDay}
+            onDay={setDayOverride}
             days={line.dayKeys}
+            autoDay={grade.day}
+            holiday={grade.holiday}
+            holidayGrade={grade.appliesHolidayGrade}
+            onResetDay={() => setDayOverride(null)}
           />
           {journey ? (
             <JourneyTimeline
@@ -321,11 +333,17 @@ export function MobilityPortal({
               Conferência documental: {line.verifiedAt}. Vigência operacional
               ainda não confirmada.
             </p>
-            <a href={line.source} target="_blank" rel="noreferrer">
+            <a
+              href={line.source}
+              target="_blank"
+              rel="noopener noreferrer"
+              referrerPolicy="no-referrer"
+            >
               Abrir fonte pública
             </a>
             <pre>{line.text}</pre>
           </details>
+          <HolidayCalendar today={today} />
         </div>
       </section>
       <section className="map-panel" aria-label="Mapa do percurso">
@@ -368,6 +386,7 @@ export function MobilityPortal({
             />{" "}
             Locais OSM sem vínculo de linha
           </label>
+          <small>Referências sem coordenada não são marcadas no mapa.</small>
         </div>
         {selected && (
           <div className="selected-place">
@@ -380,7 +399,10 @@ export function MobilityPortal({
             </button>
             <small>REFERÊNCIA {selected.sequence}</small>
             <strong>{selected.label}</strong>
-            <p>Localização aproximada. Ponto de embarque não confirmado.</p>
+            <p>
+              {locationStatusLabels[selected.locationStatus]}. Ponto de embarque
+              não confirmado.
+            </p>
           </div>
         )}
         <div className="map-bottom">

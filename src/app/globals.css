@@ -18,6 +18,11 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
 }
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
 button,
 input,
 select {
@@ -134,7 +139,8 @@ a {
 .workspace {
   display: grid;
   grid-template-columns: 310px 390px minmax(280px, 1fr);
-  height: calc(100dvh - 76px);
+  flex: 1 1 0;
+  height: auto;
   min-height: 560px;
 }
 .explorer,
@@ -580,6 +586,33 @@ select {
   margin-top: 4px;
   line-height: 1.5;
 }
+.point-status {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-top: 5px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  background: #f4f5f1;
+}
+.point-status[data-status="confirmada"] {
+  background: #e8f0c8;
+  border-color: #b7c774;
+  color: #3d5210;
+}
+.point-status[data-status="aproximada"] {
+  background: #f5f0df;
+  border-color: #e5ddbd;
+  color: #71612d;
+}
+.point-status[data-status="sem_localizacao"] {
+  background: #f4f5f1;
+  border-style: dashed;
+  color: var(--muted);
+}
 .point-actions {
   display: flex;
   align-items: center;
@@ -613,11 +646,72 @@ select {
 .source-details summary {
   cursor: pointer;
   font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .source-details pre {
   white-space: pre-wrap;
   font: 11px/1.7 Arial;
   margin-top: 15px;
+}
+.notice-holiday {
+  background: #e8f0c8;
+  border-color: #b7c774;
+  color: #3d5210;
+}
+.day-override {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.day-override button {
+  background: transparent;
+  color: var(--green);
+  font-size: 11px;
+  text-decoration: underline;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.holiday-list {
+  list-style: none;
+  margin: 12px 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.holiday-list li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.holiday-list strong {
+  font-size: 12px;
+  display: block;
+}
+.holiday-list small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+  margin-top: 2px;
+}
+.holiday-list a {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  color: var(--green);
+  margin-top: 4px;
+}
+.holiday-date {
+  flex: 0 0 68px;
+  font-size: 10px;
+  color: var(--muted);
+  padding-top: 2px;
 }
 .map-panel {
   position: relative;
@@ -708,6 +802,12 @@ select {
   align-items: center;
   gap: 4px;
   font-size: 9px;
+}
+.map-legend small {
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.4;
+  max-width: 190px;
 }
 .map-bottom {
   position: absolute;
@@ -881,6 +981,43 @@ select {
   max-width: 1040px;
   margin: 0 auto;
   padding: 40px 40px 110px;
+  flex: 1 0 auto;
+  width: 100%;
+}
+.site-footer {
+  border-top: 1px solid var(--line);
+  background: #fff;
+  padding: 14px 30px;
+  font-size: 11px;
+  color: var(--muted);
+  flex: 0 0 auto;
+}
+.footer-inner {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+.footer-note {
+  margin: 0;
+  max-width: 640px;
+  line-height: 1.55;
+}
+.footer-links {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.footer-links a {
+  color: var(--green);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.footer-links a:hover {
+  text-decoration: underline;
 }
 .back-link {
   display: inline-flex;
@@ -1119,7 +1256,9 @@ select {
 }
 .api-docs {
   position: relative;
-  height: calc(100dvh - 76px);
+  flex: 1 1 0;
+  height: auto;
+  min-height: 0;
 }
 .api-docs #redoc {
   height: 100%;
@@ -1133,6 +1272,15 @@ select {
   font-size: 13px;
   line-height: 1.7;
   color: var(--muted);
+}
+.api-docs-note p {
+  margin-bottom: 12px;
+}
+.api-docs-note .primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 14px;
 }
 .api-docs-note a {
   color: var(--green);
@@ -1219,6 +1367,7 @@ select {
   }
   .workspace {
     height: calc(100dvh - 65px);
+    flex: 0 0 auto;
     min-height: 0;
     display: block;
     position: relative;
@@ -1378,6 +1527,14 @@ select {
   .project-page {
     padding: 28px 22px 100px;
   }
+  .site-footer {
+    padding: 14px 22px 22px;
+  }
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
   .back-link {
     margin-bottom: 35px;
   }
@@ -1429,6 +1586,7 @@ select {
   }
   .api-docs {
     height: calc(100dvh - 65px);
+    flex: 0 0 auto;
   }
   .api-docs-note {
     top: 18px;

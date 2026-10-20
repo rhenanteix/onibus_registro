@@ -1,4 +1,30 @@
 export type DayKey = "week" | "sat" | "sun" | "tuewedfri";
+export type HolidayScope = "nacional" | "estadual" | "municipal";
+export type HolidayType = "feriado" | "ponto_facultativo";
+export type HolidayStatus = "publicado" | "previsto";
+export interface Holiday {
+  date: string;
+  name: string;
+  scope: HolidayScope;
+  type: HolidayType;
+  status: HolidayStatus;
+  source: string;
+  sourceLabel: string;
+  legalBasis: string;
+  note?: string;
+  checkedAt: string;
+}
+export interface HolidayCalendar {
+  version: number;
+  updatedAt: string;
+  municipality: string;
+  state: string;
+  timezone: string;
+  notes: string;
+  holidays: Holiday[];
+}
+/** Situação da coordenada de uma referência do percurso. */
+export type LocationStatus = "confirmada" | "aproximada" | "sem_localizacao";
 export interface Line {
   id: string;
   name: string;
@@ -23,6 +49,7 @@ export interface ReferencePoint {
   sequence: number;
   label: string;
   boardingValidated: boolean;
+  locationStatus: LocationStatus;
   position: Position | null;
 }
 export interface Journey {
@@ -68,6 +95,7 @@ export interface Catalog {
   schedules: Schedules;
   routes: Record<string, RouteShape>;
   stops: MappedStop[];
+  holidays: HolidayCalendar;
 }
 export interface UserPosition {
   lat: number;

@@ -38,6 +38,32 @@ export function saoPauloClock(date = new Date()) {
     weekday,
   };
 }
+/** Nomes dos dias da semana em português, começando no domingo. */
+export const weekdayNames = [
+  "domingo",
+  "segunda-feira",
+  "terça-feira",
+  "quarta-feira",
+  "quinta-feira",
+  "sexta-feira",
+  "sábado",
+];
+/** Data local de São Paulo em AAAA-MM-DD, usada pelo calendário de feriados. */
+export function saoPauloDateKey(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const get = (name: string) => parts.find((x) => x.type === name)?.value ?? "";
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+/** Converte AAAA-MM-DD em um instante ao meio-dia UTC, o mesmo dia em São Paulo. */
+export function dateFromKey(key: string) {
+  const [year, month, day] = key.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day, 12));
+}
 export function dayForLine(keys: string[], date = new Date()): DayKey {
   const c = saoPauloClock(date);
   return keys.includes("tuewedfri") && ["Tue", "Wed", "Fri"].includes(c.weekday)
