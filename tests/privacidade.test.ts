@@ -39,6 +39,7 @@ test("nenhum recurso de imagem ou script externo é carregado pelo portal", () =
 test("os únicos endereços externos do código estão em links de ação do usuário", () => {
   const externos = /https?:\/\/[^\s"'`)]+/g;
   const excecoes = new Set([
+    "https://schema.org", // JSON-LD vocabulary; never fetched.
     "https://www.openstreetmap.org/copyright",
     "https://www.openstreetmap.org",
     // Endereço do próprio projeto, usado como servidor na especificação.
@@ -49,6 +50,17 @@ test("os únicos endereços externos do código estão em links de ação do usu
     for (const achado of source.match(externos) ?? []) {
       const endereco = achado.replace(/[.,;]$/, "");
       if (excecoes.has(endereco)) continue;
+      if (
+        path.relative(srcDir, file) === "lib/domain.ts" &&
+        endereco.startsWith("https://github.com/${owner}/${repo}/issues/new?")
+      ) {
+        const timetable = read(
+          path.join(srcDir, "components/mobility/Timetable.tsx"),
+        );
+        assert.match(timetable, /href=\{buildIssueUrl\(/);
+        assert.match(timetable, /target="_blank"/);
+        continue;
+      }
       if (endereco.startsWith("https://{s}.tile.openstreetmap.org")) continue;
       if (endereco.startsWith("https://www.google.com/maps/@?api=1")) continue;
       // O visualizador Redoc da página /docs/api é a única exceção
@@ -62,7 +74,7 @@ test("os únicos endereços externos do código estão em links de ação do usu
   }
 });
 
-test("os tiles do mapa são a única requisição externa ao carregar a página", () => {
+test("os tiles do mapa usam apenas o provedor documentado", () => {
   const mapa = read(path.join(srcDir, "components", "map", "TransitMap.tsx"));
   const tiles = mapa.match(/url="https:\/\/[^"]+"/) ?? [];
   assert.equal(tiles.length, 1);

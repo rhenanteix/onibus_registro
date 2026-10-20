@@ -100,6 +100,9 @@ export function Timetable({
                 {r.time}
                 {r.uncertain ? " ?" : ""}
               </strong>
+              {r === next && (
+                <small className="next-label">Próxima saída</small>
+              )}
               {r.note && <small>{r.note}</small>}
               {r.variant !== "Padrão" && <small>{r.variant}</small>}
               <a

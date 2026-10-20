@@ -19,17 +19,6 @@ export function InstallPrompt() {
       Boolean((navigator as Navigator & { standalone?: boolean }).standalone);
     setInstalled(standalone);
     setIos(/iPad|iPhone|iPod/.test(navigator.userAgent));
-    if (!standalone) {
-      try {
-        setVisible(
-          Date.now() -
-            Number(localStorage.getItem("mobilidade:install-dismissed") ?? 0) >
-            7 * 86400000,
-        );
-      } catch {
-        setVisible(true);
-      }
-    }
     const before = (e: Event) => {
       e.preventDefault();
       setPrompt(e as InstallEvent);
@@ -84,6 +73,8 @@ export function InstallPrompt() {
     <>
       <button
         className="install-fixed"
+        aria-expanded={visible}
+        aria-label="Instalar aplicativo"
         onClick={() => {
           setVisible(true);
           setHelp(false);

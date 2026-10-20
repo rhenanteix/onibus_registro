@@ -1,6 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Search,
   LocateFixed,
@@ -37,9 +37,15 @@ const TransitMap = dynamic(() => import("@/components/map/TransitMap"), {
 });
 export function MobilityPortal({
   initialCatalog,
+  initialDate,
 }: {
   initialCatalog: Catalog;
+  initialDate: string;
 }) {
+  const mapRegion = useRef<HTMLElement>(null);
+  const detailHeading = useRef<HTMLHeadingElement>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
+  const [refreshing, setRefreshing] = useState(false);
   const [catalog, setCatalog] = useState(initialCatalog);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("Todas");
@@ -54,15 +60,10 @@ export function MobilityPortal({
   const geo = useGeolocation();
   const { favorites, toggle } = useFavorites();
 
-  // O relógio de referência é sempre America/Sao_Paulo, independentemente do
-  // fuso da máquina. Inicializa no primeiro render (inclusive no servidor) para
-  // que o HTML enviado já traga a próxima saída em vez de "Consulte a grade",
-  // e o cliente só ajusta os segundos a cada 30 segundos.
-  const spClock = saoPauloClock();
-  const [today, setToday] = useState<string>(saoPauloDateKey());
+  const [today, setToday] = useState(initialDate);
   // null = grade automática (dia da semana ou feriado); um valor = escolha manual.
   const [dayOverride, setDayOverride] = useState<DayKey | null>(null);
-  const [clock, setClock] = useState<number | null>(spClock.minutes);
+  const [clock, setClock] = useState<number | null>(null);
   const [selected, setSelected] = useState<ReferencePoint | null>(null);
   const line = catalog.lines.find((l) => l.id === lineId) ?? catalog.lines[0];
   const grade = gradeForLine(line.dayKeys, today);
@@ -98,23 +99,35 @@ export function MobilityPortal({
     [catalog, query, filter, favorites],
   );
   function choose(id: string) {
+    setDayOverride(null);
     setLineId(id);
     setDirection(0);
     setJourneyId("");
     setSelected(null);
     setDetail(true);
     setMobileMap(false);
+    requestAnimationFrame(() => detailHeading.current?.focus());
+  }
+  function openMap() {
+    setMobileMap(true);
+    requestAnimationFrame(() => mapRegion.current?.focus());
   }
   async function refresh() {
+    if (refreshing) return;
+    setRefreshing(true);
     setSync("Atualizando…");
     try {
       const response = await fetch("/api/catalog", { cache: "no-store" });
       if (!response.ok) throw Error();
       const body = await response.json();
       setCatalog(body.data);
-      setSync("Dados consultados. Base de 20/10/2026.");
+      setSync(
+        "Consulta concluída. Confira a data da fonte nos detalhes da linha.",
+      );
     } catch {
-      setSync("Sem conexão. Exibindo a base disponível.");
+      setSync("Não foi possível atualizar. Exibindo a base disponível.");
+    } finally {
+      setRefreshing(false);
     }
   }
   const origin = line.origins[direction] ?? "Consulte o itinerário";
@@ -122,19 +135,35 @@ export function MobilityPortal({
   return (
     <main
       id="conteudo"
+      tabIndex={-1}
       className={`workspace ${mobileMap ? "mobile-map" : ""}`}
     >
-      <aside className={`explorer ${detail ? "has-detail" : ""}`}>
-        <div className="explorer-top">
+      <section className="portal-intro" aria-label="Planeje sua viagem">
+        <div>
           <span className="eyebrow">REGISTRO, SÃO PAULO</span>
-          <h1>
-            Qual é o seu
-            <br />
-            próximo caminho?
-          </h1>
+          <h1>Encontre seu ônibus</h1>
+        </div>
+        <p>Linhas, horários de saída e percursos em um só lugar.</p>
+        <a className="intro-help" href="#como-usar">
+          <Info size={17} /> Como usar
+        </a>
+      </section>
+      <aside
+        aria-label="Buscar linhas de ônibus"
+        className={`explorer ${detail ? "has-detail" : ""}`}
+      >
+        <div className="explorer-top">
+          <span className="eyebrow">BUSQUE UMA LINHA</span>
+          <h2>Qual é o seu destino?</h2>
+          <p className="search-hint" id="search-help">
+            Digite um bairro, destino ou número da linha.
+          </p>
           <label className="search">
             <Search size={20} />
             <input
+              ref={searchInput}
+              type="search"
+              aria-describedby="search-help"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Destino, bairro ou linha"
@@ -159,7 +188,7 @@ export function MobilityPortal({
           <p className="geo-status" role="status">
             {geo.status}
           </p>
-          <div className="filters" aria-label="Filtrar linhas">
+          <div className="filters" role="group" aria-label="Filtrar linhas">
             {["Todas", "Urbana", "Rural", "Universitária", "Favoritas"].map(
               (f) => (
                 <button
@@ -175,8 +204,15 @@ export function MobilityPortal({
         </div>
         <div className="line-list">
           <div className="list-label">
-            <span>{visible.length} linhas disponíveis</span>
-            <button aria-label="Consultar dados atualizados" onClick={refresh}>
+            <span role="status" aria-live="polite">
+              {visible.length}{" "}
+              {visible.length === 1 ? "linha encontrada" : "linhas encontradas"}
+            </span>
+            <button
+              disabled={refreshing}
+              aria-label="Consultar dados atualizados"
+              onClick={refresh}
+            >
               <RefreshCw size={14} />
             </button>
           </div>
@@ -196,10 +232,28 @@ export function MobilityPortal({
             />
           ))}
           {!visible.length && (
-            <p className="empty">
-              Nenhuma linha encontrada. Tente o nome de outro bairro ou limpe o
-              filtro.
-            </p>
+            <div className="empty">
+              <strong>
+                {filter === "Favoritas" && !query
+                  ? "Suas linhas favoritas ficam aqui"
+                  : "Não encontramos uma linha"}
+              </strong>
+              <p>
+                {filter === "Favoritas" && !query
+                  ? "Toque na estrela ao lado de uma linha para salvá-la neste aparelho."
+                  : "Tente outro bairro ou destino. Você também pode voltar à lista completa."}
+              </p>
+              <button
+                className="primary"
+                onClick={() => {
+                  setQuery("");
+                  setFilter("Todas");
+                  searchInput.current?.focus();
+                }}
+              >
+                Ver todas as linhas
+              </button>
+            </div>
           )}
         </div>
         <div className="explorer-foot">
@@ -210,7 +264,13 @@ export function MobilityPortal({
         className={`journey-panel ${detail ? "detail-open" : ""}`}
         aria-label="Detalhes da viagem"
       >
-        <button className="back-mobile" onClick={() => setDetail(false)}>
+        <button
+          className="back-mobile"
+          onClick={() => {
+            setDetail(false);
+            requestAnimationFrame(() => searchInput.current?.focus());
+          }}
+        >
           <ArrowLeft size={17} /> Todas as linhas
         </button>
         <div className="journey-header">
@@ -218,7 +278,9 @@ export function MobilityPortal({
             <span className="line-code">{line.id}</span>
             <div>
               <span className="eyebrow">{line.kind}</span>
-              <h2>{line.name}</h2>
+              <h2 ref={detailHeading} tabIndex={-1}>
+                {line.name}
+              </h2>
             </div>
             <button
               className="icon-button"
@@ -254,7 +316,7 @@ export function MobilityPortal({
             <ArrowLeftRight size={17} /> Inverter sentido
           </button>
           <label className="variant-label">
-            Percurso / variante
+            Escolha o percurso
             <select
               value={journey?.id ?? ""}
               onChange={(e) => {
@@ -285,12 +347,16 @@ export function MobilityPortal({
               <strong>
                 {next
                   ? next.time
-                  : isToday
-                    ? "Consulte a grade"
-                    : "Consulte os horários abaixo"}
+                  : clock === null
+                    ? "Consultando horários…"
+                    : isToday
+                      ? rows.length
+                        ? "Sem próxima saída confirmada"
+                        : "Sem saídas publicadas"
+                      : "Consulte os horários abaixo"}
               </strong>
             </div>
-            <span>na origem</span>
+            {next && <span>na origem</span>}
           </div>
           <p className="notice">
             <Info size={16} /> Percurso em validação. Confirme o embarque com a
@@ -321,7 +387,7 @@ export function MobilityPortal({
               position={geo.position}
               onSelect={(p) => {
                 setSelected(p);
-                setMobileMap(true);
+                openMap();
               }}
             />
           ) : (
@@ -348,82 +414,128 @@ export function MobilityPortal({
           <HolidayCalendar today={today} />
         </div>
       </section>
-      <section className="map-panel" aria-label="Mapa do percurso">
-        <TransitMap
-          journey={journey}
-          shape={catalog.routes[line.id] ?? null}
-          selected={selected}
-          position={geo.position}
-          stops={catalog.stops}
-          showStops={showStops}
-          onSelect={setSelected}
-          recenter={recenter}
-        />
+      <section
+        ref={mapRegion}
+        tabIndex={-1}
+        className="map-panel"
+        aria-label="Mapa do percurso"
+      >
         <div className="map-heading">
-          <span className="map-tag">
-            <span className="status-dot" />
-            {line.id} · {destination}
-          </span>
+          <div>
+            <span className="eyebrow">MAPA DO PERCURSO</span>
+            <h2>
+              <span className="line-code">{line.id}</span> {destination}
+            </h2>
+          </div>
           <button
             className="map-control"
             disabled={!geo.position}
             onClick={() => setRecenter((x) => x + 1)}
             aria-label="Centralizar minha localização"
+            title="Centralizar minha localização"
           >
             <LocateFixed size={20} />
           </button>
         </div>
-        <div className="map-legend">
-          <span>
-            <i /> Traçado aproximado
-          </span>
-          <span>
-            <b>1</b> Referências do percurso
-          </span>
-          <label>
-            <input
-              type="checkbox"
-              checked={showStops}
-              onChange={(e) => setShowStops(e.target.checked)}
-            />{" "}
-            Locais OSM sem vínculo de linha
-          </label>
-          <small>Referências sem coordenada não são marcadas no mapa.</small>
+        <div className="map-canvas">
+          <TransitMap
+            journey={journey}
+            shape={catalog.routes[line.id] ?? null}
+            selected={selected}
+            position={geo.position}
+            stops={catalog.stops}
+            showStops={showStops}
+            onSelect={setSelected}
+            recenter={recenter}
+          />
         </div>
-        {selected && (
-          <div className="selected-place">
-            <button
-              className="icon-button"
-              onClick={() => setSelected(null)}
-              aria-label="Fechar referência"
+        <div className="map-tools">
+          <label className="map-reference-picker">
+            Encontrar uma referência no mapa
+            <select
+              value={selected?.id ?? ""}
+              onChange={(event) =>
+                setSelected(
+                  journey?.points.find(
+                    (point) => point.id === event.target.value,
+                  ) ?? null,
+                )
+              }
             >
-              <X size={17} />
-            </button>
-            <small>REFERÊNCIA {selected.sequence}</small>
-            <strong>{selected.label}</strong>
+              <option value="">Selecione uma rua ou local</option>
+              {journey?.points
+                .filter((point) => point.position)
+                .map((point) => (
+                  <option key={point.id} value={point.id}>
+                    {point.sequence}. {point.label}
+                  </option>
+                ))}
+            </select>
+          </label>
+          {selected && (
+            <div className="selected-place" role="status">
+              <button
+                className="icon-button"
+                onClick={() => setSelected(null)}
+                aria-label="Fechar referência"
+              >
+                <X size={17} />
+              </button>
+              <strong>
+                {selected.sequence}. {selected.label}
+              </strong>
+              <p>
+                {locationStatusLabels[selected.locationStatus]}. Embarque não
+                confirmado.
+              </p>
+            </div>
+          )}
+          <details className="map-legend">
+            <summary>Sobre as informações do mapa</summary>
             <p>
-              {locationStatusLabels[selected.locationStatus]}. Ponto de embarque
-              não confirmado.
+              A linha tracejada é um trajeto aproximado. Os números indicam
+              referências do percurso, não a posição dos ônibus.
             </p>
-          </div>
-        )}
-        <div className="map-bottom">
-          <Navigation size={18} />
-          <span>
-            {geo.position
-              ? `Sua localização · precisão de ${Math.round(geo.position.accuracy)} m`
-              : "Ative sua localização para se orientar no mapa."}
-          </span>
+            <label>
+              <input
+                type="checkbox"
+                checked={showStops}
+                onChange={(e) => setShowStops(e.target.checked)}
+              />{" "}
+              Mostrar outros locais do OpenStreetMap
+            </label>
+            <small>Esses locais não têm embarque confirmado nesta linha.</small>
+          </details>
+          <p className="map-bottom">
+            <Navigation size={16} />
+            <span>
+              {geo.position
+                ? `Você está no ponto azul · precisão de ${Math.round(geo.position.accuracy)} m`
+                : "Mapa de referência · sem localização ao vivo dos ônibus"}
+            </span>
+          </p>
         </div>
       </section>
-      <button className="mobile-toggle" onClick={() => setMobileMap((v) => !v)}>
+      <button
+        className="mobile-toggle"
+        aria-pressed={mobileMap}
+        onClick={() => {
+          if (mobileMap) {
+            setMobileMap(false);
+            requestAnimationFrame(() => {
+              if (detail) detailHeading.current?.focus();
+              else searchInput.current?.focus();
+            });
+          } else openMap();
+        }}
+      >
         {mobileMap ? (
           <>
             <BusFront size={18} /> Ver linhas e percurso
           </>
         ) : (
           <>
-            <Map size={18} /> Abrir mapa
+            <Map size={18} /> Ver mapa
           </>
         )}
       </button>

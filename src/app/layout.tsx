@@ -4,13 +4,26 @@ import { BusFront, ArrowUpRight } from "lucide-react";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { Footer } from "@/components/layout/Footer";
 import "./globals.css";
+import { siteUrl, siteDescription } from "@/lib/site";
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    siteName: "Mobilidade Registro",
+    title: "Ônibus em Registro: linhas, horários e percursos",
+    description: siteDescription,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mobilidade Registro",
+    description: siteDescription,
+  },
   title: {
-    default: "Mobilidade Registro — seu próximo caminho",
+    default: "Ônibus em Registro — horários e linhas | Mobilidade Registro",
     template: "%s · Mobilidade Registro",
   },
-  description:
-    "Linhas, horários e percursos de referência do transporte de Registro. Projeto aberto e independente.",
+  description: siteDescription,
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -49,7 +62,7 @@ export default function RootLayout({
             </Link>
             <Link href="/docs">Documentação</Link>
           </nav>
-          <span className="open-label">ABERTO À CIDADE</span>
+          <span className="open-label">ÔNIBUS EM REGISTRO</span>
         </header>
         {children}
         <InstallPrompt />

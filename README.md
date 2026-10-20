@@ -107,3 +107,20 @@ Veja `docs/ARQUITETURA.md` para o papel de cada componente, contrato das APIs e 
 Código original: MIT, em LICENSE. Dados de terceiros não são relicenciados pela licença do código. Consulte THIRD_PARTY.md e as fontes por registro. Não existe vínculo oficial com a operadora nem autorização presumida para acessar GPS ou bilhetagem.
 
 A base legal dos dados (fonte, data de coleta, natureza pública, aviso de independência e licença sugerida) está em `DATA_LICENSE.md`, renderizado na página `/licenca`. A minuta de ofício para pedir dados oficiais ou autorização à prefeitura está em `docs/MINUTA-OFICIO.md`. Nenhum desses textos é parecer jurídico: a revisão final cabe aos mantenedores.
+
+### Experiência de consulta e descoberta
+
+A página inicial apresenta busca por linha/bairro, sentido, horários e referências
+em texto. O mapa e seus tiles externos são carregados na tela principal;
+a localização do aparelho não representa a posição de um ônibus. Não há integração
+com GPS da frota. A instalação do aplicativo é oferecida sob demanda.
+
+A identidade pública usa `NEXT_PUBLIC_SITE_URL` (padrão: endereço de produção acima)
+para metadados, URL canônica, `robots.txt` e `sitemap.xml`. Ao trocar o domínio,
+atualize essa variável antes do build. A imagem de compartilhamento é gerada em
+`/opengraph-image`, sem imagens ou fontes remotas. O guia visível e o JSON-LD
+explicam o escopo real do serviço; não garantem indexação nem citação por IA.
+
+Verificação manual recomendada: busca sem resultados, favoritos, seleção de linha,
+inversão do sentido, escolha do dia, abertura do mapa, localização permitida/negada,
+navegação por teclado e zoom. A grade de horários continua disponível em texto.

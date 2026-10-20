@@ -54,12 +54,14 @@ function View({
   useEffect(() => {
     if (selected?.position)
       map.flyTo([selected.position.lat, selected.position.lon], 17, {
-        duration: 0.6,
+        duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? 0
+          : 0.6,
       });
   }, [selected, map]);
   useEffect(() => {
-    if (position && recenter > 0) map.flyTo([position.lat, position.lon], 16);
-  }, [recenter, map]);
+    if (position && recenter > 0) map.setView([position.lat, position.lon], 16);
+  }, [recenter, map, position]);
   useEffect(() => {
     const observer = new ResizeObserver(() => map.invalidateSize());
     observer.observe(map.getContainer());
@@ -94,7 +96,7 @@ export default function TransitMap({
       center={[-24.493, -47.843]}
       zoom={14}
       className="transit-map"
-      scrollWheelZoom
+      scrollWheelZoom={false}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -118,6 +120,8 @@ export default function TransitMap({
       {Array.from(grouped.entries()).map(([key, points]) => (
         <Marker
           key={key}
+          title={points.map((p) => `${p.sequence}. ${p.label}`).join(", ")}
+          alt={points.map((p) => p.label).join(", ")}
           position={[points[0].position!.lat, points[0].position!.lon]}
           icon={L.divIcon({
             className: "reference-marker",
