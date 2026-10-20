@@ -20,7 +20,7 @@ export function Timetable({
   days: string[];
 }) {
   return (
-    <section className="timetable">
+    <section>
       <div className="section-heading">
         <h3>
           <Clock3 size={18} /> Horários de saída

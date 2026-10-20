@@ -1,21 +1,53 @@
 import Link from "next/link";
+import { ArrowUpRight, BookOpen, History, Terminal } from "lucide-react";
+
+export const metadata = { title: "Documentação" };
+
+const cards = [
+  {
+    href: "/docs/api",
+    icon: Terminal,
+    title: "Documentação da API",
+    text: "Referência dos endpoints de leitura, gerada a partir do OpenAPI que o próprio projeto publica.",
+  },
+  {
+    href: "/roadmap",
+    icon: History,
+    title: "Roadmap, versões e melhorias",
+    text: "O que já foi entregue, o que está em aberto e o histórico de mudanças do projeto.",
+  },
+  {
+    href: "/projeto",
+    icon: BookOpen,
+    title: "Sobre o projeto",
+    text: "Arquitetura, origem dos dados, limitações de verificação e próximos passos.",
+  },
+];
 
 export default function DocsPage() {
   return (
-    <div className="min-h-screen bg-white p-8">
-      <div className="mx-auto max-w-4xl">
-        <h1 className="text-3xl font-bold mb-6">Documentação</h1>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Link href="/docs/api" className="border p-6 rounded hover:border-blue-500">
-            <h2 className="text-xl font-semibold mb-2">Documentação da API</h2>
-            <p className="text-gray-600">Swagger UI interativo</p>
-          </Link>
-          <Link href="/roadmap" className="border p-6 rounded hover:border-blue-500">
-            <h2 className="text-xl font-semibold mb-2">Roadmap, Versões e Melhorias</h2>
-            <p className="text-gray-600">Versões, melhorias e changelog</p>
-          </Link>
-        </div>
+    <main id="conteudo" className="project-page">
+      <div className="project-intro">
+        <span className="eyebrow">DOCUMENTAÇÃO</span>
+        <h1>Documentação do projeto</h1>
+        <p>
+          O portal serve dados de horário e percurso publicados pela prefeitura.
+          Esta seção reúne a referência da API, o histórico de versões e a
+          descrição do projeto, todos abertos para revisão externa.
+        </p>
       </div>
-    </div>
+      <div className="docs-cards">
+        {cards.map(({ href, icon: Icon, title, text }) => (
+          <Link key={href} href={href} className="docs-card">
+            <Icon size={20} />
+            <h2>{title}</h2>
+            <p>{text}</p>
+            <span className="docs-card-link">
+              Abrir <ArrowUpRight size={14} />
+            </span>
+          </Link>
+        ))}
+      </div>
+    </main>
   );
 }

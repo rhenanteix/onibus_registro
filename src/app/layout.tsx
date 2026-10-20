@@ -46,6 +46,7 @@ export default function RootLayout({
             <Link href="/projeto">
               Sobre o projeto <ArrowUpRight size={14} />
             </Link>
+            <Link href="/docs">Documentação</Link>
           </nav>
           <span className="open-label">ABERTO À CIDADE</span>
         </header>

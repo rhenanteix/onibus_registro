@@ -31,6 +31,10 @@ const delivered = [
     "Transparência dos dados",
     "Textos e fontes preservados, horários incertos sinalizados, referências aproximadas e ausência de GPS explícitas.",
   ],
+  [
+    "Documentação pública",
+    "Referência da API em OpenAPI, índice de documentação, roadmap e changelog gerados a partir dos arquivos versionados do projeto.",
+  ],
 ];
 const roadmap = [
   [
@@ -178,6 +182,8 @@ export default function Project() {
           <span>Linha, horários, percursos e geometria.</span>
           <code>GET /api/realtime</code>
           <span>Informa indisponibilidade; não simula veículos.</span>
+          <code>GET /api/openapi</code>
+          <span>Especificação OpenAPI da própria API.</span>
         </div>
         <p>
           Já existe backend Node.js de leitura. Não existe NestJS separado,
@@ -229,10 +235,12 @@ export default function Project() {
           mapa recebe requisições de tiles da região visualizada.
         </p>
         <p>
-          Para colaborar, use o guia CONTRIBUTING.md do código. As sugestões de
-          nome ainda não foram adotadas: a interface mantém “Mobilidade
-          Registro”. A licença MIT cobre o código original; os dados e
-          bibliotecas de terceiros mantêm suas condições e atribuições.
+          Para colaborar, use o guia CONTRIBUTING.md do código. A documentação
+          pública, com a referência da API e o histórico de versões, está em{" "}
+          <Link href="/docs">/docs</Link>. As sugestões de nome ainda não foram
+          adotadas: a interface mantém “Mobilidade Registro”. A licença MIT
+          cobre o código original; os dados e bibliotecas de terceiros mantêm
+          suas condições e atribuições.
         </p>
       </section>
       <Link href="/" className="primary inline-button">
