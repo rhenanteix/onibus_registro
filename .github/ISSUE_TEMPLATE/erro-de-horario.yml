@@ -1,0 +1,37 @@
+name: Erro em horário
+description: Reportar um horário incorreto ou desatualizado
+title: "Erro de horário: "
+labels: ["erro-de-horario"]
+body:
+  - type: input
+    id: linha
+    attributes:
+      label: Linha
+    validations:
+      required: true
+  - type: input
+    id: sentido
+    attributes:
+      label: Sentido
+    validations:
+      required: true
+  - type: input
+    id: dia
+    attributes:
+      label: Dia
+    validations:
+      required: true
+  - type: input
+    id: horario
+    attributes:
+      label: Horário
+    validations:
+      required: true
+  - type: input
+    id: versao
+    attributes:
+      label: Versão dos dados
+  - type: input
+    id: fonte
+    attributes:
+      label: Link da fonte

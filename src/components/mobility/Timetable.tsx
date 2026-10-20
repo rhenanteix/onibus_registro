@@ -1,6 +1,7 @@
 import { Clock3, Info, RotateCcw } from "lucide-react";
 import type { DayKey, Departure, Holiday } from "@/types/transit";
 import { scopeLabels } from "@/lib/feriados";
+import { buildIssueUrl } from "@/lib/domain";
 export const dayLabels: Record<DayKey, string> = {
   week: "Segunda a sexta",
   sat: "Sábado",
@@ -17,6 +18,10 @@ export function Timetable({
   holiday,
   holidayGrade,
   onResetDay,
+  lineId = "",
+  directionLabel = "",
+  sourceUrl = "",
+  dataVersion = "",
 }: {
   rows: Departure[];
   next: Departure | null;
@@ -27,6 +32,10 @@ export function Timetable({
   holiday: Holiday | null;
   holidayGrade: boolean;
   onResetDay: () => void;
+  lineId?: string;
+  directionLabel?: string;
+  sourceUrl?: string;
+  dataVersion?: string;
 }) {
   const manual = day !== autoDay;
   const isFeriado = holiday?.type === "feriado";
@@ -93,6 +102,22 @@ export function Timetable({
               </strong>
               {r.note && <small>{r.note}</small>}
               {r.variant !== "Padrão" && <small>{r.variant}</small>}
+              <a
+                className="report-link"
+                aria-label={`Reportar erro no horário ${r.time}`}
+                href={buildIssueUrl({
+                  line: lineId,
+                  direction: directionLabel,
+                  day,
+                  time: r.time,
+                  dataVersion,
+                  sourceUrl,
+                })}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Reportar erro
+              </a>
             </div>
           ))}
         </div>

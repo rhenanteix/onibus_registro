@@ -18,8 +18,8 @@ import {
 import type { Catalog, DayKey, ReferencePoint } from "@/types/transit";
 import {
   destinationMatches,
+  fuzzyIncludes,
   nextDeparture,
-  normalize,
   saoPauloClock,
   saoPauloDateKey,
 } from "@/lib/domain";
@@ -92,9 +92,7 @@ export function MobilityPortal({
           (filter === "Todas" ||
             (filter === "Favoritas" && favorites.includes(l.id)) ||
             l.kind === filter) &&
-          (normalize(`${l.id} ${l.name} ${l.origins.join(" ")}`).includes(
-            normalize(query),
-          ) ||
+          (fuzzyIncludes(`${l.id} ${l.name} ${l.origins.join(" ")}`, query) ||
             destinationMatches(catalog.journeys[l.id] ?? [], query)),
       ),
     [catalog, query, filter, favorites],
@@ -311,6 +309,10 @@ export function MobilityPortal({
             holiday={grade.holiday}
             holidayGrade={grade.appliesHolidayGrade}
             onResetDay={() => setDayOverride(null)}
+            lineId={line.id}
+            directionLabel={journey?.label ?? ""}
+            sourceUrl={line.source}
+            dataVersion={line.verifiedAt}
           />
           {journey ? (
             <JourneyTimeline

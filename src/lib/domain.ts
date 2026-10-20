@@ -119,10 +119,33 @@ export function nextDeparture(rows: Departure[], minutes: number) {
       .sort((a, b) => a.time.localeCompare(b.time))[0] ?? null
   );
 }
+function levenshtein(a: string, b: string) {
+  if (a === b) return 0;
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let cur = [i];
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+    }
+    prev = cur;
+  }
+  return prev[b.length];
+}
+export function fuzzyIncludes(text: string, query: string) {
+  const t = normalize(text);
+  const q = normalize(query);
+  if (!q) return true;
+  if (t.includes(q)) return true;
+  const words = t.split(/\s+/);
+  return words.some((w) => levenshtein(w, q) <= Math.max(1, Math.floor(q.length / 4)));
+}
 export function destinationMatches(journeys: Journey[], query: string) {
   const q = normalize(query);
   return journeys.some((j) =>
-    j.points.some((p) => normalize(p.label).includes(q)),
+    j.points.some((p) => fuzzyIncludes(p.label, q)),
   );
 }
 export function routeColor(id: string) {
@@ -131,4 +154,60 @@ export function routeColor(id: string) {
     : id.startsWith("U")
       ? "#6750a4"
       : "#12624b";
+}
+
+export interface ProximaSaidaResult {
+  proxima: Departure | null;
+  seguintes: Departure[];
+  minutos: number | null;
+  mensagem: string;
+}
+
+export function proximaSaida(
+  grade: Departure[],
+  agora: number,
+  _diaTipo?: string,
+): ProximaSaidaResult {
+  const candidatas = grade
+    .filter((d) => !d.uncertain && /^\d{2}:\d{2}$/.test(d.time))
+    .map((d) => ({
+      d,
+      mins: Number(d.time.slice(0, 2)) * 60 + Number(d.time.slice(3)),
+    }))
+    .sort((a, b) => a.mins - b.mins);
+  const futuras = candidatas.filter((x) => x.mins >= agora);
+  const lista = (futuras.length ? futuras : candidatas).slice(0, 3).map((x) => x.d);
+  const proxima = lista[0] ?? null;
+  const minutos = proxima
+    ? Number(proxima.time.slice(0, 2)) * 60 +
+      Number(proxima.time.slice(3)) -
+      agora
+    : null;
+  const mensagem = proxima
+    ? `próxima saída às ${proxima.time} (em ${minutos} min)`
+    : "sem mais saídas hoje; primeira amanhã às " + (candidatas[0]?.d.time ?? "--:--");
+  return { proxima, seguintes: lista.slice(1), minutos, mensagem };
+}
+
+export function buildIssueUrl(params: {
+  line: string;
+  direction: string;
+  day: string;
+  time: string;
+  dataVersion?: string;
+  sourceUrl?: string;
+}) {
+  const owner = "rhenanteix";
+  const repo = "onibus_registro";
+  const title = `Erro de horário: ${params.line} ${params.direction} ${params.time}`;
+  const body = [
+    `Linha: ${params.line}`,
+    `Sentido: ${params.direction}`,
+    `Dia: ${params.day}`,
+    `Horário: ${params.time}`,
+    `Versão dos dados: ${params.dataVersion ?? ""}`,
+    `Link da fonte: ${params.sourceUrl ?? ""}`,
+  ].join("\n");
+  const q = new URLSearchParams({ title, body, labels: "erro-de-horario" });
+  return `https://github.com/${owner}/${repo}/issues/new?${q.toString()}`;
 }

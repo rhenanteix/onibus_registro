@@ -516,6 +516,13 @@ select {
   margin-top: 4px;
   overflow-wrap: anywhere;
 }
+.time .report-link {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 9px;
+  color: var(--muted, #666);
+  text-decoration: underline;
+}
 .time.next-time {
   background: #e8f0c8;
   border-color: #b7c774;
