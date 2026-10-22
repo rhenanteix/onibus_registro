@@ -1,6 +1,6 @@
 # Mobilidade Registro — Next.js / React
 
-Portal independente de transporte de Registro (SP). Reestruturação completa da versão estática: componentes React, TypeScript, Next.js App Router e backend Node.js de leitura. Nome provisório preservado; “Bora Ribeira” não foi adotado sem escolha do mantenedor.
+Portal independente de transporte de Registro (SP). Reestruturação completa da versão estática: componentes React, TypeScript, Next.js App Router e backend Node.js de leitura.
 
 Site publicado: https://onibusregistro-yeal.vercel.app/
 
